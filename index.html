@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🌶️ ร้านส้มตำ Dashboard</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+-webkit-tap-highlight-color:transparent;
+}
+
+:root{
+--bg:#f4faf5;
+--card:#ffffff;
+--green:#2e7d32;
+--green2:#43a047;
+--green3:#e8f5e9;
+--text:#263238;
+--muted:#78909c;
+--border:#d7e7d9;
+--red:#ef5350;
+--orange:#fb8c00;
+}
+
+body{
+background:var(--bg);
+font-family:Sarabun,system-ui,sans-serif;
+color:var(--text);
+}
+
+.header{
+background:#fff;
+padding:16px;
+border-bottom:1px solid var(--border);
+position:sticky;
+top:0;
+z-index:10;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+}
+
+.title{
+font-size:22px;
+font-weight:800;
+color:var(--green);
+}
+
+.sub{
+font-size:12px;
+color:var(--muted);
+margin-top:2px;
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+.dot{
+width:6px;
+height:6px;
+border-radius:50%;
+background:var(--green2);
+display:inline-block;
+}
+
+.dot.stale{
+background:var(--red);
+}
+
+.refresh-btn{
+border:1px solid var(--border);
+background:#fff;
+border-radius:12px;
+width:38px;
+height:38px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:16px;
+color:var(--green);
+flex-shrink:0;
+cursor:pointer;
+}
+
+.refresh-btn:active{
+background:var(--green3);
+}
+
+.refresh-btn.spinning{
+animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+from{transform:rotate(0deg);}
+to{transform:rotate(360deg);}
+}
+
+main{
+max-width:520px;
+margin:auto;
+padding:14px;
+display:flex;
+flex-direction:column;
+gap:14px;
+}
+
+.tabs{
+display:flex;
+gap:6px;
+background:#fff;
+border:1px solid var(--border);
+border-radius:14px;
+padding:4px;
+}
+
+.tab{
+flex:1;
+text-align:center;
+font-size:12px;
+font-weight:700;
+color:var(--muted);
+padding:9px 4px;
+border-radius:10px;
+cursor:pointer;
+user-select:none;
+}
+
+.tab.active{
+background:var(--green);
+color:#fff;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+.card{
+background:var(--card);
+border:1px solid var(--border);
+border-radius:18px;
+padding:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.03);
+}
+
+.kpi-label{
+font-size:11px;
+color:var(--muted);
+font-weight:700;
+margin-bottom:4px;
+}
+
+.kpi-value{
+font-size:21px;
+font-weight:800;
+color:var(--green);
+}
+
+.kpi-sub{
+font-size:11px;
+color:var(--muted);
+margin-top:4px;
+}
+
+.section{
+font-size:12px;
+font-weight:800;
+color:var(--green);
+margin-bottom:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.section-hint{
+font-size:10px;
+color:var(--muted);
+font-weight:500;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:8px 0;
+border-bottom:1px solid #f0f0f0;
+}
+
+.row:last-child{
+border-bottom:none;
+}
+
+.big{
+font-size:28px;
+font-weight:800;
+color:var(--green);
+text-align:center;
+margin-top:8px;
+}
+
+.up{
+color:var(--red);
+font-weight:700;
+}
+
+.down{
+color:var(--green2);
+font-weight:700;
+}
+
+.bar-wrap{
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+
+.bar-row{
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.bar-label{
+width:40px;
+font-size:11px;
+color:var(--muted);
+}
+
+.track{
+flex:1;
+height:22px;
+background:#edf5ee;
+border-radius:8px;
+overflow:hidden;
+}
+
+.fill{
+height:100%;
+background:linear-gradient(90deg,#66bb6a,#2e7d32);
+display:flex;
+align-items:center;
+justify-content:flex-end;
+padding-right:8px;
+color:#fff;
+font-size:10px;
+font-weight:700;
+}
+
+.list-row{
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid #f1f1f1;
+cursor:pointer;
+}
+
+.list-row:last-child{
+border:none;
+}
+
+.list-row:active{
+background:#f7fbf7;
+}
+
+.name{
+font-size:13px;
+}
+
+.amount{
+font-weight:800;
+color:var(--green);
+}
+
+.table{
+background:#fff;
+border:1px solid var(--border);
+border-radius:18px;
+overflow:hidden;
+}
+
+.item{
+display:grid;
+grid-template-columns:55px 1fr auto;
+gap:8px;
+padding:12px;
+border-bottom:1px solid #f0f0f0;
+align-items:center;
+}
+
+.item:last-child{
+border:none;
+}
+
+.date{
+font-size:11px;
+color:var(--muted);
+}
+
+.detail{
+font-size:13px;
+}
+
+.price{
+font-size:13px;
+font-weight:800;
+color:var(--green);
+}
+
+.footer{
+text-align:center;
+padding:20px;
+font-size:11px;
+color:var(--muted);
+}
+
+/* budget bars */
+.budget-row{
+margin-bottom:14px;
+}
+
+.budget-row:last-child{
+margin-bottom:0;
+}
+
+.budget-top{
+display:flex;
+justify-content:space-between;
+font-size:12px;
+margin-bottom:6px;
+}
+
+.budget-cat{
+font-weight:700;
+}
+
+.budget-amt{
+color:var(--muted);
+}
+
+.budget-track{
+height:10px;
+background:#edf5ee;
+border-radius:6px;
+overflow:hidden;
+}
+
+.budget-fill{
+height:100%;
+border-radius:6px;
+background:linear-gradient(90deg,#66bb6a,#2e7d32);
+}
+
+.budget-fill.warn{
+background:linear-gradient(90deg,#ffb74d,#fb8c00);
+}
+
+.budget-fill.over{
+background:linear-gradient(90deg,#ef5350,#c62828);
+}
+
+.budget-pct{
+font-size:11px;
+font-weight:700;
+margin-top:4px;
+color:var(--muted);
+}
+
+.budget-pct.warn{color:var(--orange);}
+.budget-pct.over{color:var(--red);}
+
+.cat-delta{
+font-size:10px;
+font-weight:700;
+margin-left:6px;
+}
+
+.cat-delta.up{color:var(--red);}
+.cat-delta.down{color:var(--green2);}
+
+/* states */
+.state-box{
+text-align:center;
+padding:30px 16px;
+color:var(--muted);
+font-size:13px;
+}
+
+.state-box .icon{
+font-size:30px;
+margin-bottom:8px;
+}
+
+.retry-btn{
+margin-top:12px;
+display:inline-block;
+background:var(--green);
+color:#fff;
+border:none;
+padding:9px 18px;
+border-radius:10px;
+font-size:13px;
+font-weight:700;
+cursor:pointer;
+}
+
+.skel{
+background:linear-gradient(90deg,#eef3ef 25%,#f6f9f6 37%,#eef3ef 63%);
+background-size:400% 100%;
+animation:skel 1.4s ease infinite;
+border-radius:6px;
+color:transparent !important;
+}
+
+@keyframes skel{
+0%{background-position:100% 50%;}
+100%{background-position:0 50%;}
+}
+
+/* drill down modal */
+.overlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.35);
+display:flex;
+align-items:flex-end;
+justify-content:center;
+z-index:50;
+opacity:0;
+pointer-events:none;
+transition:opacity .2s;
+}
+
+.overlay.show{
+opacity:1;
+pointer-events:auto;
+}
+
+.sheet{
+background:#fff;
+width:100%;
+max-width:520px;
+border-radius:20px 20px 0 0;
+max-height:75vh;
+overflow:auto;
+transform:translateY(20px);
+transition:transform .2s;
+padding:16px;
+}
+
+.overlay.show .sheet{
+transform:translateY(0);
+}
+
+.sheet-head{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+}
+
+.sheet-title{
+font-size:15px;
+font-weight:800;
+color:var(--green);
+}
+
+.sheet-close{
+font-size:13px;
+color:var(--muted);
+padding:6px 10px;
+cursor:pointer;
+}
+
+/* date range custom inputs */
+.range-row{
+display:flex;
+gap:8px;
+margin-top:10px;
+}
+
+.range-row input{
+flex:1;
+border:1px solid var(--border);
+border-radius:10px;
+padding:8px;
+font-size:12px;
+font-family:inherit;
+color:var(--text);
+}
+
+.range-row button{
+background:var(--green);
+color:#fff;
+border:none;
+border-radius:10px;
+padding:8px 14px;
+font-size:12px;
+font-weight:700;
+cursor:pointer;
+}
+
+.empty-small{
+text-align:center;
+color:var(--muted);
+font-size:12px;
+padding:16px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<div>
+<div class="title">🌶️ ร้านส้มตำ</div>
+<div class="sub"><span class="dot" id="statusDot"></span><span id="lastUpdated">กำลังโหลด...</span></div>
+</div>
+<div class="refresh-btn" id="refreshBtn" title="รีเฟรชข้อมูล">🔄</div>
+</div>
+
+<main id="main">
+
+<div class="tabs" id="rangeTabs">
+<div class="tab active" data-range="today">วันนี้</div>
+<div class="tab" data-range="week">สัปดาห์นี้</div>
+<div class="tab" data-range="month">เดือนนี้</div>
+<div class="tab" data-range="custom">กำหนดเอง</div>
+</div>
+
+<div class="card" id="customRangeCard" style="display:none">
+<div class="range-row">
+<input type="date" id="customFrom">
+<input type="date" id="customTo">
+<button id="customApply">ดู</button>
+</div>
+</div>
+
+<div id="errorBox"></div>
+
+<div id="dashboardContent">
+
+<div class="grid">
+
+<div class="card">
+<div class="kpi-label">💸 รายจ่ายช่วงนี้</div>
+<div class="kpi-value" id="rangeTotal">-</div>
+<div class="kpi-sub" id="rangeSubLabel">รายจ่าย</div>
+</div>
+
+<div class="card">
+<div class="kpi-label">📅 ปีนี้</div>
+<div class="kpi-value" id="yearTotal">-</div>
+<div class="kpi-sub">รายจ่ายสะสม</div>
+</div>
+
+<div class="card">
+<div class="kpi-label">🧾 จำนวนบิล</div>
+<div class="kpi-value" id="billCount">-</div>
+<div class="kpi-sub" id="billCountSub">ช่วงนี้</div>
+</div>
+
+<div class="card">
+<div class="kpi-label">📊 เฉลี่ยต่อบิล</div>
+<div class="kpi-value" id="avgBill">-</div>
+<div class="kpi-sub" id="avgBillSub">ช่วงนี้</div>
+</div>
+
+</div>
+
+<div class="card" id="momCard">
+<div class="section">📈 เปรียบเทียบช่วงก่อนหน้า</div>
+
+<div class="row">
+<span id="prevLabel">ช่วงก่อน</span>
+<span id="prevTotal">-</span>
+</div>
+
+<div class="row">
+<span id="currentLabel">ช่วงนี้</span>
+<span id="currentTotal">-</span>
+</div>
+
+<div class="big" id="momDiff">-</div>
+</div>
+
+<div class="card" id="avgDayCard">
+<div class="section">📆 ค่าเฉลี่ยต่อวัน</div>
+
+<div style="text-align:center;color:#78909c;font-size:13px">
+<span id="daysNowLabel">ผ่านไป <span id="daysNow">-</span> วัน</span>
+</div>
+
+<div class="big" id="avgDay">-</div>
+
+</div>
+
+<div class="card" id="budgetCard" style="display:none">
+<div class="section">🎯 งบประมาณรายเดือน <span class="section-hint">เทียบเดือนนี้</span></div>
+<div id="budgetList"></div>
+</div>
+
+<div class="card">
+<div class="section">🥇 หมวดใช้เงินสูงสุด <span class="section-hint">แตะดูรายการ</span></div>
+<div id="topCats"></div>
+</div>
+
+<div class="card">
+<div class="section">📅 รายจ่ายตามวันในสัปดาห์</div>
+<div class="bar-wrap" id="weekdayBars"></div>
+</div>
+
+<div class="card">
+<div class="section">📊 รายจ่ายรายเดือน</div>
+<div class="bar-wrap" id="monthBars"></div>
+</div>
+
+<div>
+<div class="section" style="margin-bottom:6px;padding:0 4px">📝 5 รายการล่าสุด</div>
+<div class="table" id="recentTable"></div>
+</div>
+
+</div>
+
+</main>
+
+<div class="footer" id="footerText">
+🌶️ Auto refresh ทุก 5 นาที
+</div>
+
+<div class="overlay" id="drillOverlay">
+<div class="sheet">
+<div class="sheet-head">
+<div class="sheet-title" id="drillTitle">รายการ</div>
+<div class="sheet-close" id="drillClose">ปิด ✕</div>
+</div>
+<div id="drillList"></div>
+</div>
+</div>
+
+<script>
+
+const SHEET_ID='10D-GwPgOJ98JU-rTyzonTYsM8Gg6mTzluqy6Q5nJoCA';
+const SHEET_NAME='รวม';
+const BUDGET_SHEET_NAME='งบ';
+
+const thM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const thWeekday=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
+
+let allData=[];
+let budgetMap={};
+let currentRange='today';
+let customFrom=null;
+let customTo=null;
+let lastFetchOk=false;
+
+function fmt(n){
+return Math.round(n).toLocaleString('th-TH',{
+minimumFractionDigits:0,
+maximumFractionDigits:0
+});
+}
+
+function pa(v){
+const n=parseFloat(String(v||0).replace(/,/g,''));
+return isNaN(n)?0:n;
+}
+
+function pd(v){
+
+if(!v)return null;
+
+const m=String(v).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+
+if(m){
+return new Date(+m[3],+m[2]-1,+m[1]);
+}
+
+const d=new Date(v);
+
+return isNaN(d)?null:d;
+}
+
+function sameDay(a,b){
+return a.getFullYear()===b.getFullYear() &&
+a.getMonth()===b.getMonth() &&
+a.getDate()===b.getDate();
+}
+
+function startOfWeek(d){
+const x=new Date(d);
+const day=x.getDay();
+x.setDate(x.getDate()-day);
+x.setHours(0,0,0,0);
+return x;
+}
+
+async function fetchSheet(sheetName){
+
+const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+
+const res=await fetch(url);
+
+if(!res.ok){
+throw new Error('โหลดข้อมูลไม่สำเร็จ (HTTP '+res.status+')');
+}
+
+const txt=await res.text();
+
+const start=txt.indexOf('{');
+const end=txt.lastIndexOf('}');
+
+if(start===-1||end===-1){
+throw new Error('รูปแบบข้อมูลจาก Google Sheets ไม่ถูกต้อง');
+}
+
+const json=JSON.parse(txt.substring(start,end+1));
+
+if(!json.table||!json.table.cols){
+throw new Error('ไม่พบข้อมูลในชีต "'+sheetName+'"');
+}
+
+const cols=json.table.cols.map(c=>c.label||'');
+
+return (json.table.rows||[]).map(r=>{
+
+const o={};
+
+r.c.forEach((cell,i)=>{
+o[cols[i]]=cell?(cell.f??cell.v):null;
+});
+
+return o;
+
+});
+
+}
+
+async function fetchData(){
+
+const rows=await fetchSheet(SHEET_NAME);
+
+allData=rows.map(r=>({
+
+date:pd(r['วันที่']),
+amt:pa(r['ยอดเงิน']),
+cat:r['หมวดหมู่']||'อื่นๆ',
+detail:r['รายละเอียด']||r['ร้านค้า/ผู้รับเงิน']||'-'
+
+})).filter(x=>x.amt>0 && x.date);
+
+// budget sheet is optional - never let it break the main dashboard
+try{
+
+const budgetRows=await fetchSheet(BUDGET_SHEET_NAME);
+
+const map={};
+
+budgetRows.forEach(r=>{
+const cat=r['หมวดหมู่'];
+const amt=pa(r['งบต่อเดือน']);
+if(cat && amt>0){
+map[cat]=amt;
+}
+});
+
+budgetMap=map;
+
+}catch(e){
+budgetMap={};
+}
+
+}
+
+function getRangeDates(){
+
+const now=new Date();
+
+if(currentRange==='today'){
+const from=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+return {from, to:now, label:'วันนี้', prevLabel:'เมื่อวาน'};
+}
+
+if(currentRange==='week'){
+const from=startOfWeek(now);
+return {from, to:now, label:'สัปดาห์นี้', prevLabel:'สัปดาห์ก่อน'};
+}
+
+if(currentRange==='custom' && customFrom && customTo){
+return {from:customFrom, to:customTo, label:'ช่วงที่เลือก', prevLabel:'ช่วงก่อนหน้า (เทียบเท่า)'};
+}
+
+// month (default / fallback)
+const from=new Date(now.getFullYear(),now.getMonth(),1);
+return {from, to:now, label:'เดือนนี้', prevLabel:'เดือนก่อน'};
+
+}
+
+function getPrevRangeDates(from,to){
+
+const ms=to.getTime()-from.getTime();
+
+if(currentRange==='month'){
+const tm=from.getMonth();
+const ty=from.getFullYear();
+const prevM=tm===0?11:tm-1;
+const prevY=tm===0?ty-1:ty;
+const pf=new Date(prevY,prevM,1);
+const pt=new Date(prevY,prevM+1,0,23,59,59);
+return {from:pf, to:pt};
+}
+
+const pf=new Date(from.getTime()-ms-86400000);
+const pt=new Date(from.getTime()-86400000);
+
+return {from:pf, to:pt};
+
+}
+
+function inRange(d,from,to){
+return d>=from && d<=to;
+}
+
+function setStatus(ok){
+
+lastFetchOk=ok;
+
+const dot=document.getElementById('statusDot');
+const label=document.getElementById('lastUpdated');
+
+if(ok){
+dot.className='dot';
+const now=new Date();
+const hh=String(now.getHours()).padStart(2,'0');
+const mm=String(now.getMinutes()).padStart(2,'0');
+label.textContent='อัปเดตล่าสุด '+hh+':'+mm;
+}else{
+dot.className='dot stale';
+label.textContent='โหลดข้อมูลล่าสุดไม่สำเร็จ';
+}
+
+}
+
+function showSkeleton(){
+
+document.querySelectorAll('.kpi-value,.big').forEach(el=>{
+el.classList.add('skel');
+el.textContent='000000';
+});
+
+}
+
+function clearSkeleton(){
+
+document.querySelectorAll('.skel').forEach(el=>{
+el.classList.remove('skel');
+});
+
+}
+
+function showError(message){
+
+const box=document.getElementById('errorBox');
+
+box.innerHTML=`
+<div class="card state-box">
+<div class="icon">⚠️</div>
+<div>${message}</div>
+<button class="retry-btn" id="retryBtn">ลองอีกครั้ง</button>
+</div>
+`;
+
+document.getElementById('dashboardContent').style.display='none';
+
+document.getElementById('retryBtn').onclick=load;
+
+}
+
+function clearError(){
+
+document.getElementById('errorBox').innerHTML='';
+document.getElementById('dashboardContent').style.display='';
+
+}
+
+function renderBudget(mData,totalsByCat){
+
+const card=document.getElementById('budgetCard');
+
+const keys=Object.keys(budgetMap);
+
+if(!keys.length){
+card.style.display='none';
+return;
+}
+
+card.style.display='';
+
+document.getElementById('budgetList').innerHTML=
+keys.map(cat=>{
+
+const spent=totalsByCat[cat]||0;
+const budget=budgetMap[cat];
+const pct=budget?(spent/budget*100):0;
+
+let cls='';
+if(pct>=100)cls='over';
+else if(pct>=80)cls='warn';
+
+return `
+<div class="budget-row">
+<div class="budget-top">
+<span class="budget-cat">${cat}</span>
+<span class="budget-amt">฿${fmt(spent)} / ฿${fmt(budget)}</span>
+</div>
+<div class="budget-track">
+<div class="budget-fill ${cls}" style="width:${Math.min(pct,100)}%"></div>
+</div>
+<div class="budget-pct ${cls}">${pct.toFixed(0)}% ของงบ${pct>=100?' — เกินงบแล้ว':pct>=80?' — ใกล้เต็มงบ':''}</div>
+</div>
+`;
+
+}).join('');
+
+}
+
+function openDrill(cat,rows){
+
+document.getElementById('drillTitle').textContent=cat+' ('+rows.length+' รายการ)';
+
+document.getElementById('drillList').innerHTML=
+rows.length?
+[...rows].sort((a,b)=>b.date-a.date).map(x=>`
+<div class="item">
+<div class="date">${x.date.getDate()} ${thM[x.date.getMonth()]}</div>
+<div class="detail">${x.detail}</div>
+<div class="price">฿${fmt(x.amt)}</div>
+</div>
+`).join('')
+:'<div class="empty-small">ไม่มีรายการ</div>';
+
+document.getElementById('drillOverlay').classList.add('show');
+
+}
+
+function closeDrill(){
+document.getElementById('drillOverlay').classList.remove('show');
+}
+
+function render(){
+
+clearSkeleton();
+
+const {from,to,label,prevLabel}=getRangeDates();
+
+const rData=allData.filter(x=>inRange(x.date,from,to));
+
+const now=new Date();
+const ty=now.getFullYear();
+
+const yData=allData.filter(x=>x.date.getFullYear()===ty);
+
+const {from:pFrom,to:pTo}=getPrevRangeDates(from,to);
+
+const prevData=allData.filter(x=>inRange(x.date,pFrom,pTo));
+
+const totalRange=rData.reduce((s,x)=>s+x.amt,0);
+const totalYear=yData.reduce((s,x)=>s+x.amt,0);
+const totalPrev=prevData.reduce((s,x)=>s+x.amt,0);
+
+const avgBill=rData.length?totalRange/rData.length:0;
+
+const dayCount=Math.max(1,Math.round((to-from)/86400000)+1);
+const avgDay=totalRange/dayCount;
+
+document.getElementById('rangeTotal').innerHTML='฿'+fmt(totalRange);
+document.getElementById('rangeSubLabel').textContent='รายจ่าย'+label;
+document.getElementById('yearTotal').innerHTML='฿'+fmt(totalYear);
+document.getElementById('billCount').innerHTML=fmt(rData.length);
+document.getElementById('billCountSub').textContent=label;
+document.getElementById('avgBill').innerHTML='฿'+fmt(avgBill);
+document.getElementById('avgBillSub').textContent=label;
+
+document.getElementById('prevLabel').textContent=prevLabel;
+document.getElementById('currentLabel').textContent=label;
+document.getElementById('prevTotal').innerHTML='฿'+fmt(totalPrev);
+document.getElementById('currentTotal').innerHTML='฿'+fmt(totalRange);
+
+let diff=0;
+
+if(totalPrev){
+diff=((totalRange-totalPrev)/totalPrev)*100;
+}
+
+document.getElementById('momDiff').innerHTML=
+totalPrev?
+((diff>=0?'▲ ':'▼ ')+Math.abs(diff).toFixed(1)+'%')
+:'ไม่มีข้อมูลเทียบ';
+
+document.getElementById('momDiff').className=
+diff>=0?'big up':'big down';
+
+document.getElementById('daysNow').innerHTML=dayCount;
+document.getElementById('avgDay').innerHTML='฿'+fmt(avgDay);
+
+// categories for current range + comparison vs previous range
+const cats={};
+const prevCats={};
+
+rData.forEach(x=>{
+cats[x.cat]=(cats[x.cat]||0)+x.amt;
+});
+
+prevData.forEach(x=>{
+prevCats[x.cat]=(prevCats[x.cat]||0)+x.amt;
+});
+
+const topCats=Object.entries(cats)
+.sort((a,b)=>b[1]-a[1])
+.slice(0,5);
+
+document.getElementById('topCats').innerHTML=
+topCats.length?
+topCats.map((x,i)=>{
+
+const prevAmt=prevCats[x[0]]||0;
+
+let deltaHtml='';
+
+if(prevAmt>0){
+const d=((x[1]-prevAmt)/prevAmt)*100;
+const cls=d>=0?'up':'down';
+const arrow=d>=0?'▲':'▼';
+deltaHtml=`<span class="cat-delta ${cls}">${arrow}${Math.abs(d).toFixed(0)}%</span>`;
+}else{
+deltaHtml='<span class="cat-delta up">ใหม่</span>';
+}
+
+return `
+<div class="list-row" data-cat="${x[0]}">
+<div class="name">
+${['🥇','🥈','🥉','4️⃣','5️⃣'][i]}
+${x[0]}
+${deltaHtml}
+</div>
+<div class="amount">฿${fmt(x[1])}</div>
+</div>
+`;
+
+}).join('')
+:'<div class="empty-small">ไม่มีรายจ่ายในช่วงนี้</div>';
+
+document.querySelectorAll('#topCats .list-row').forEach(el=>{
+el.onclick=()=>{
+const cat=el.getAttribute('data-cat');
+openDrill(cat,rData.filter(x=>x.cat===cat));
+};
+});
+
+// monthly bars (whole year, unaffected by range tabs)
+const monthly=Array(12).fill(0);
+
+yData.forEach(x=>{
+monthly[x.date.getMonth()]+=x.amt;
+});
+
+const maxM=Math.max(...monthly,1);
+
+document.getElementById('monthBars').innerHTML=
+monthly.map((v,i)=>`
+<div class="bar-row">
+<div class="bar-label">${thM[i]}</div>
+<div class="track">
+<div class="fill" style="width:${Math.round(v/maxM*100)}%">${v?fmt(v):''}</div>
+</div>
+</div>
+`).join('');
+
+// weekday bars (based on current range's underlying month-to-date data, fallback to year)
+const weekdayTotals=Array(7).fill(0);
+const weekdayCounts=Array(7).fill(0);
+
+yData.forEach(x=>{
+const wd=x.date.getDay();
+weekdayTotals[wd]+=x.amt;
+weekdayCounts[wd]+=1;
+});
+
+const weekdayAvg=weekdayTotals.map((v,i)=>weekdayCounts[i]?v/weekdayCounts[i]:0);
+
+const order=[1,2,3,4,5,6,0]; // Mon..Sun
+
+const maxW=Math.max(...weekdayAvg,1);
+
+document.getElementById('weekdayBars').innerHTML=
+order.map(i=>`
+<div class="bar-row">
+<div class="bar-label">${thWeekday[i]}</div>
+<div class="track">
+<div class="fill" style="width:${Math.round(weekdayAvg[i]/maxW*100)}%">${weekdayAvg[i]?'฿'+fmt(weekdayAvg[i]):''}</div>
+</div>
+</div>
+`).join('');
+
+// recent 5, always from full dataset regardless of range tab
+const recent=[...allData]
+.sort((a,b)=>b.date-a.date)
+.slice(0,5);
+
+document.getElementById('recentTable').innerHTML=
+recent.length?
+recent.map(x=>`
+<div class="item">
+<div class="date">${x.date.getDate()} ${thM[x.date.getMonth()]}</div>
+<div class="detail">${x.detail}</div>
+<div class="price">฿${fmt(x.amt)}</div>
+</div>
+`).join('')
+:'<div class="empty-small">ยังไม่มีรายการ</div>';
+
+// budget card uses month-to-date totals regardless of which tab is selected
+const monthFrom=new Date(now.getFullYear(),now.getMonth(),1);
+const mtdData=allData.filter(x=>inRange(x.date,monthFrom,now));
+const mtdCats={};
+mtdData.forEach(x=>{mtdCats[x.cat]=(mtdCats[x.cat]||0)+x.amt;});
+
+renderBudget(mtdData,mtdCats);
+
+}
+
+async function load(){
+
+clearError();
+showSkeleton();
+
+document.getElementById('refreshBtn').classList.add('spinning');
+
+try{
+
+await fetchData();
+setStatus(true);
+render();
+
+}catch(e){
+
+setStatus(false);
+
+let msg='ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+
+if(e.message && e.message.includes('ชีต')){
+msg=e.message;
+}
+
+showError(msg);
+
+}finally{
+
+document.getElementById('refreshBtn').classList.remove('spinning');
+
+}
+
+}
+
+// tab switching
+document.querySelectorAll('#rangeTabs .tab').forEach(tab=>{
+
+tab.onclick=()=>{
+
+document.querySelectorAll('#rangeTabs .tab').forEach(t=>t.classList.remove('active'));
+tab.classList.add('active');
+
+currentRange=tab.getAttribute('data-range');
+
+document.getElementById('customRangeCard').style.display=
+currentRange==='custom'?'':'none';
+
+if(currentRange!=='custom' || (customFrom && customTo)){
+render();
+}
+
+};
+
+});
+
+document.getElementById('customApply').onclick=()=>{
+
+const fromVal=document.getElementById('customFrom').value;
+const toVal=document.getElementById('customTo').value;
+
+if(!fromVal||!toVal){
+return;
+}
+
+customFrom=new Date(fromVal+'T00:00:00');
+customTo=new Date(toVal+'T23:59:59');
+
+render();
+
+};
+
+document.getElementById('refreshBtn').onclick=load;
+
+document.getElementById('drillClose').onclick=closeDrill;
+
+document.getElementById('drillOverlay').onclick=(e)=>{
+if(e.target.id==='drillOverlay'){
+closeDrill();
+}
+};
+
+load();
+
+setInterval(load,300000);
+
+</script>
+
+</body>
+</html>
