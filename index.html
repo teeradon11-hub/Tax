@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🌶️ ร้านส้มตำ Dashboard</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+-webkit-tap-highlight-color:transparent;
+}
+
+:root{
+--bg:#f4faf5;
+--card:#ffffff;
+--green:#2e7d32;
+--green2:#43a047;
+--green3:#e8f5e9;
+--text:#263238;
+--muted:#78909c;
+--border:#d7e7d9;
+--red:#ef5350;
+}
+
+body{
+background:var(--bg);
+font-family:Sarabun,system-ui,sans-serif;
+color:var(--text);
+}
+
+.header{
+background:#fff;
+padding:16px;
+border-bottom:1px solid var(--border);
+position:sticky;
+top:0;
+z-index:10;
+}
+
+.title{
+font-size:22px;
+font-weight:800;
+color:var(--green);
+}
+
+.sub{
+font-size:12px;
+color:var(--muted);
+margin-top:2px;
+}
+
+main{
+max-width:520px;
+margin:auto;
+padding:14px;
+display:flex;
+flex-direction:column;
+gap:14px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+.card{
+background:var(--card);
+border:1px solid var(--border);
+border-radius:18px;
+padding:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.03);
+}
+
+.kpi-label{
+font-size:11px;
+color:var(--muted);
+font-weight:700;
+margin-bottom:4px;
+}
+
+.kpi-value{
+font-size:21px;
+font-weight:800;
+color:var(--green);
+}
+
+.kpi-sub{
+font-size:11px;
+color:var(--muted);
+margin-top:4px;
+}
+
+.section{
+font-size:12px;
+font-weight:800;
+color:var(--green);
+margin-bottom:12px;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:8px 0;
+border-bottom:1px solid #f0f0f0;
+}
+
+.row:last-child{
+border-bottom:none;
+}
+
+.big{
+font-size:28px;
+font-weight:800;
+color:var(--green);
+text-align:center;
+margin-top:8px;
+}
+
+.up{
+color:var(--red);
+font-weight:700;
+}
+
+.down{
+color:var(--green2);
+font-weight:700;
+}
+
+.bar-wrap{
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+
+.bar-row{
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.bar-label{
+width:40px;
+font-size:11px;
+color:var(--muted);
+}
+
+.track{
+flex:1;
+height:22px;
+background:#edf5ee;
+border-radius:8px;
+overflow:hidden;
+}
+
+.fill{
+height:100%;
+background:linear-gradient(90deg,#66bb6a,#2e7d32);
+display:flex;
+align-items:center;
+justify-content:flex-end;
+padding-right:8px;
+color:#fff;
+font-size:10px;
+font-weight:700;
+}
+
+.list-row{
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid #f1f1f1;
+}
+
+.list-row:last-child{
+border:none;
+}
+
+.name{
+font-size:13px;
+}
+
+.amount{
+font-weight:800;
+color:var(--green);
+}
+
+.table{
+background:#fff;
+border:1px solid var(--border);
+border-radius:18px;
+overflow:hidden;
+}
+
+.item{
+display:grid;
+grid-template-columns:55px 1fr auto;
+gap:8px;
+padding:12px;
+border-bottom:1px solid #f0f0f0;
+align-items:center;
+}
+
+.item:last-child{
+border:none;
+}
+
+.date{
+font-size:11px;
+color:var(--muted);
+}
+
+.detail{
+font-size:13px;
+}
+
+.price{
+font-size:13px;
+font-weight:800;
+color:var(--green);
+}
+
+.footer{
+text-align:center;
+padding:20px;
+font-size:11px;
+color:var(--muted);
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<div class="title">🌶️ ร้านส้มตำ</div>
+<div class="sub">Expense Dashboard</div>
+</div>
+
+<main id="main">
+
+<div class="grid">
+
+<div class="card">
+<div class="kpi-label">💸 เดือนนี้</div>
+<div class="kpi-value" id="monthTotal">-</div>
+<div class="kpi-sub">รายจ่ายเดือนปัจจุบัน</div>
+</div>
+
+<div class="card">
+<div class="kpi-label">📅 ปีนี้</div>
+<div class="kpi-value" id="yearTotal">-</div>
+<div class="kpi-sub">รายจ่ายสะสม</div>
+</div>
+
+<div class="card">
+<div class="kpi-label">🧾 จำนวนบิล</div>
+<div class="kpi-value" id="billCount">-</div>
+<div class="kpi-sub">เดือนนี้</div>
+</div>
+
+<div class="card">
+<div class="kpi-label">📊 เฉลี่ยต่อบิล</div>
+<div class="kpi-value" id="avgBill">-</div>
+<div class="kpi-sub">เดือนนี้</div>
+</div>
+
+</div>
+
+<div class="card">
+<div class="section">📈 เปรียบเทียบเดือนก่อน</div>
+
+<div class="row">
+<span>เดือนก่อน</span>
+<span id="prevTotal">-</span>
+</div>
+
+<div class="row">
+<span>เดือนนี้</span>
+<span id="currentTotal">-</span>
+</div>
+
+<div class="big" id="momDiff">-</div>
+</div>
+
+<div class="card">
+<div class="section">📆 ค่าเฉลี่ยต่อวัน</div>
+
+<div style="text-align:center;color:#78909c;font-size:13px">
+ผ่านไป <span id="daysNow">-</span> วัน
+</div>
+
+<div class="big" id="avgDay">-</div>
+
+</div>
+<div class="card">
+<div class="section">🥇 หมวดใช้เงินสูงสุด</div>
+<div id="topCats"></div>
+</div>
+
+<div class="card">
+<div class="section">📊 รายจ่ายรายเดือน</div>
+<div class="bar-wrap" id="monthBars"></div>
+</div>
+
+<div>
+<div class="section">📝 5 รายการล่าสุด</div>
+<div class="table" id="recentTable"></div>
+</div>
+
+</main>
+
+<div class="footer">
+🌶️ Auto refresh ทุก 5 นาที
+</div>
+
+<script>
+
+const SHEET_ID='10D-GwPgOJ98JU-rTyzonTYsM8Gg6mTzluqy6Q5nJoCA';
+const SHEET_NAME='รวม';
+
+const thM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+function fmt(n){
+return n.toLocaleString('th-TH',{
+minimumFractionDigits:0,
+maximumFractionDigits:0
+});
+}
+
+function pa(v){
+const n=parseFloat(String(v||0).replace(/,/g,''));
+return isNaN(n)?0:n;
+}
+
+function pd(v){
+
+if(!v)return null;
+
+const m=String(v).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+
+if(m){
+return new Date(+m[3],+m[2]-1,+m[1]);
+}
+
+const d=new Date(v);
+
+return isNaN(d)?null:d;
+}
+
+async function fetchData(){
+
+const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+const txt=await fetch(url).then(r=>r.text());
+
+const json=JSON.parse(
+txt.substring(
+txt.indexOf('{'),
+txt.lastIndexOf('}')+1
+)
+);
+
+const cols=json.table.cols.map(c=>c.label||'');
+
+return json.table.rows.map(r=>{
+
+const o={};
+
+r.c.forEach((cell,i)=>{
+o[cols[i]]=cell?(cell.f??cell.v):null;
+});
+
+return o;
+
+});
+
+}
+
+function render(rows){
+
+const data=rows.map(r=>({
+
+date:pd(r['วันที่']),
+amt:pa(r['ยอดเงิน']),
+cat:r['หมวดหมู่']||'อื่นๆ',
+detail:r['รายละเอียด']||r['ร้านค้า/ผู้รับเงิน']||'-'
+
+})).filter(x=>x.amt>0 && x.date);
+
+const now=new Date();
+
+const tm=now.getMonth();
+const ty=now.getFullYear();
+
+const prevM=tm===0?11:tm-1;
+const prevY=tm===0?ty-1:ty;
+
+const mData=data.filter(x=>
+x.date &&
+x.date.getMonth()===tm &&
+x.date.getFullYear()===ty
+);
+
+const yData=data.filter(x=>
+x.date &&
+x.date.getFullYear()===ty
+);
+
+const prevData=data.filter(x=>
+x.date &&
+x.date.getMonth()===prevM &&
+x.date.getFullYear()===prevY
+);
+
+const totalMonth=mData.reduce((s,x)=>s+x.amt,0);
+
+const totalYear=yData.reduce((s,x)=>s+x.amt,0);
+
+const totalPrev=prevData.reduce((s,x)=>s+x.amt,0);
+
+const avgBill=mData.length?totalMonth/mData.length:0;
+
+const days=now.getDate();
+
+const avgDay=days?totalMonth/days:0;
+
+document.getElementById('monthTotal').innerHTML='฿'+fmt(totalMonth);
+document.getElementById('yearTotal').innerHTML='฿'+fmt(totalYear);
+document.getElementById('billCount').innerHTML=fmt(mData.length);
+document.getElementById('avgBill').innerHTML='฿'+fmt(avgBill);
+
+document.getElementById('prevTotal').innerHTML='฿'+fmt(totalPrev);
+document.getElementById('currentTotal').innerHTML='฿'+fmt(totalMonth);
+
+let diff=0;
+
+if(totalPrev){
+diff=((totalMonth-totalPrev)/totalPrev)*100;
+}
+
+document.getElementById('momDiff').innerHTML=
+(diff>=0?'▲ ':'▼ ')+Math.abs(diff).toFixed(1)+'%';
+
+document.getElementById('momDiff').className=
+diff>=0?'big up':'big down';
+
+document.getElementById('daysNow').innerHTML=days;
+
+document.getElementById('avgDay').innerHTML=
+'฿'+fmt(avgDay);
+
+
+
+
+const cats={};
+
+mData.forEach(x=>{
+cats[x.cat]=(cats[x.cat]||0)+x.amt;
+});
+
+const topCats=Object.entries(cats)
+.sort((a,b)=>b[1]-a[1])
+.slice(0,5);
+
+document.getElementById('topCats').innerHTML=
+topCats.map((x,i)=>`
+
+<div class="list-row">
+
+<div class="name">
+
+${['🥇','🥈','🥉','4️⃣','5️⃣'][i]}
+${x[0]}
+
+</div>
+
+<div class="amount">
+฿${fmt(x[1])}
+</div>
+
+</div>
+
+`).join('');
+
+
+
+
+const monthly=Array(12).fill(0);
+
+yData.forEach(x=>{
+monthly[x.date.getMonth()]+=x.amt;
+});
+
+const maxM=Math.max(...monthly,1);
+
+document.getElementById('monthBars').innerHTML=
+monthly.map((v,i)=>`
+
+<div class="bar-row">
+
+<div class="bar-label">
+${thM[i]}
+</div>
+
+<div class="track">
+
+<div class="fill"
+style="width:${Math.round(v/maxM*100)}%">
+
+${v?fmt(v):''}
+
+</div>
+
+</div>
+
+</div>
+
+`).join('');
+
+
+
+
+const recent=[...data]
+.sort((a,b)=>b.date-a.date)
+.slice(0,5);
+
+document.getElementById('recentTable').innerHTML=
+recent.map(x=>`
+
+<div class="item">
+
+<div class="date">
+${x.date.getDate()} ${thM[x.date.getMonth()]}
+</div>
+
+<div class="detail">
+${x.detail}
+</div>
+
+<div class="price">
+฿${fmt(x.amt)}
+</div>
+
+</div>
+
+`).join('');
+
+}
+
+
+fetchData()
+.then(render);
+
+setInterval(()=>{
+fetchData()
+.then(render);
+},300000);
+
+</script>
+
+</body>
+</html>
+
