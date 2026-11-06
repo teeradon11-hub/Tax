@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>🌶️ ร้านส้มตำ Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f0f7f1;--card:#ffffff;--green:#1b5e20;--green2:#2e7d32;--green3:#e8f5e9;
+  --text:#1a2e1a;--muted:#6b7c6b;--border:#d4e6d6;--red:#e53935;--orange:#ef6c00;--blue:#1565c0;
+  --shadow:0 2px 12px rgba(27,94,32,.06);--radius:18px;
+}
+body{background:var(--bg);font-family:'Sarabun',system-ui,-apple-system,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.4}
+.header{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:14px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.title{font-size:19px;font-weight:800;color:var(--green)}
+.sub{font-size:11px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green2);display:inline-block;box-shadow:0 0 0 3px rgba(46,125,50,.2)}
+.dot.stale{background:var(--red);box-shadow:0 0 0 3px rgba(229,57,53,.2)}
+.refresh-btn{border:1px solid var(--border);background:#fff;border-radius:14px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--green);flex-shrink:0;cursor:pointer}
+.refresh-btn:active{background:var(--green3);transform:scale(.94)}
+.refresh-btn.spinning{animation:spin .7s linear infinite}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+main{max-width:480px;margin:auto;padding:12px 12px 28px;display:flex;flex-direction:column;gap:12px}
+.tabs{display:flex;gap:3px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:3px;box-shadow:var(--shadow)}
+.tab{flex:1;text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding:9px 2px;border-radius:11px;cursor:pointer;user-select:none}
+.tab.active{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(27,94,32,.25)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.kpi-label{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:4px}
+.kpi-value{font-size:20px;font-weight:800;color:var(--green)}
+.kpi-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.section{font-size:13px;font-weight:800;color:var(--green);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.section-hint{font-size:10px;color:var(--muted);font-weight:500}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f4f0}
+.row:last-child{border-bottom:none}
+.big{font-size:26px;font-weight:800;color:var(--green);text-align:center;margin-top:6px}
+.up{color:var(--red);font-weight:700}
+.down{color:var(--green2);font-weight:700}
+.list-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #f0f4f0;cursor:pointer}
+.list-row:last-child{border:none}
+.list-row:active{background:#f5faf5}
+.name{font-size:13px;font-weight:600}
+.amount{font-weight:800;color:var(--green);font-size:14px}
+.table{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.item{display:grid;grid-template-columns:48px 1fr auto;gap:10px;padding:12px 14px;border-bottom:1px solid #f0f4f0;align-items:center}
+.item:last-child{border:none}
+.date{font-size:11px;color:var(--muted);font-weight:600}
+.detail{font-size:13px}
+.price{font-size:13px;font-weight:800;color:var(--green)}
+.footer{text-align:center;padding:8px 0 4px;font-size:11px;color:var(--muted)}
+.budget-row{margin-bottom:14px}
+.budget-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}
+.budget-cat{font-weight:700}
+.budget-amt{color:var(--muted)}
+.budget-track{height:10px;background:#edf5ee;border-radius:6px;overflow:hidden}
+.budget-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#66bb6a,#2e7d32)}
+.budget-fill.warn{background:linear-gradient(90deg,#ffb74d,#ef6c00)}
+.budget-fill.over{background:linear-gradient(90deg,#ef9a9a,#c62828)}
+.budget-pct{font-size:11px;font-weight:700;margin-top:4px;color:var(--muted)}
+.budget-pct.warn{color:var(--orange)}
+.budget-pct.over{color:var(--red)}
+.cat-delta{font-size:10px;font-weight:700;margin-left:6px}
+.cat-delta.up{color:var(--red)}
+.cat-delta.down{color:var(--green2)}
+.state-box{text-align:center;padding:32px 16px;color:var(--muted);font-size:13px;line-height:1.6}
+.state-box .icon{font-size:36px;margin-bottom:10px}
+.retry-btn{margin-top:14px;display:inline-block;background:var(--green);color:#fff;border:none;padding:11px 22px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer}
+.skel{background:linear-gradient(90deg,#e8f0e8 25%,#f4f9f4 37%,#e8f0e8 63%);background-size:400% 100%;animation:skel 1.2s ease infinite;border-radius:8px;color:transparent!important}
+@keyframes skel{0%{background-position:100% 50%}100%{background-position:0 50%}}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:50;opacity:0;pointer-events:none;transition:opacity .22s}
+.overlay.show{opacity:1;pointer-events:auto}
+.sheet{background:#fff;width:100%;max-width:480px;border-radius:22px 22px 0 0;max-height:80vh;overflow:auto;transform:translateY(24px);transition:transform .22s;padding:18px 16px 28px}
+.overlay.show .sheet{transform:translateY(0)}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sheet-title{font-size:16px;font-weight:800;color:var(--green)}
+.sheet-close{font-size:13px;color:var(--muted);padding:8px 12px;cursor:pointer;border-radius:10px;background:#f5f8f5}
+.range-row{display:flex;gap:8px;margin-top:4px}
+.range-row input{flex:1;border:1px solid var(--border);border-radius:12px;padding:10px;font-size:13px;font-family:inherit}
+.range-row button{background:var(--green);color:#fff;border:none;border-radius:12px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer}
+.empty-small{text-align:center;color:var(--muted);font-size:12px;padding:18px 0}
+.search-box{background:#fff;border:1px solid var(--border);border-radius:14px;padding:11px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)}
+.search-icon{font-size:15px;opacity:.7}
+.search-box input{flex:1;border:none;outline:none;font-size:14px;font-family:inherit;background:transparent}
+.search-clear{color:var(--muted);font-size:14px;padding:4px 6px;cursor:pointer}
+.search-summary{margin-bottom:10px}
+.search-summary-text{font-size:12px;color:var(--muted)}
+.search-summary-total{font-size:20px;font-weight:800;color:var(--green)}
+.btn-add-sale{background:var(--green);color:#fff;border:none;font-size:11px;font-weight:700;padding:6px 12px;border-radius:999px;cursor:pointer}
+.ratio-empty{font-size:13px;color:var(--muted);text-align:center;padding:14px 8px;line-height:1.55}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f0f4f0;font-size:13px}
+.summary-row:last-child{border:none}
+.summary-row .lbl{color:var(--muted)}
+.summary-row .val{font-weight:800}
+.summary-row .val.pos{color:var(--green2)}
+.summary-row .val.neg{color:var(--red)}
+.ratio-hint{font-size:11px;color:var(--muted);margin-top:10px;text-align:center;background:#f7fbf7;padding:8px;border-radius:10px}
+.sale-field{margin-bottom:14px}
+.sale-field label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px;font-weight:700}
+.sale-field input{width:100%;border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none}
+.sale-field input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(46,125,50,.12)}
+.sale-save-btn{width:100%;background:var(--green);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px}
+.sale-save-btn:disabled{opacity:.5}
+.sale-msg{font-size:12px;text-align:center;margin-top:10px;min-height:16px}
+.sale-msg.ok{color:var(--green2)}
+.sale-msg.err{color:var(--red)}
+.recent-sales-list{margin-top:14px;border-top:1px solid #f0f4f0;padding-top:10px}
+.recent-sales-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0}
+.recent-sales-row span:first-child{color:var(--muted)}
+.recent-sales-row span:last-child{font-weight:700;color:var(--green)}
+.profit-hero{background:linear-gradient(145deg,#e8f5e9 0%,#c8e6c9 55%,#a5d6a7 100%);border:1px solid #a5d6a7;border-radius:var(--radius);padding:18px 16px;text-align:center;box-shadow:0 4px 16px rgba(46,125,50,.1)}
+.profit-hero .label{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:4px}
+.profit-hero .value{font-size:34px;font-weight:800;line-height:1.1}
+.profit-hero .value.pos{color:var(--green2)}
+.profit-hero .value.neg{color:var(--red)}
+.profit-hero .sub{font-size:11px;color:var(--muted);margin-top:6px}
+.profit-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+.profit-mini{background:rgba(255,255,255,.85);border-radius:12px;padding:10px 6px;text-align:center;border:1px solid rgba(165,214,167,.6)}
+.profit-mini .ml{font-size:9px;color:var(--muted);margin-bottom:3px;font-weight:600}
+.profit-mini .mv{font-size:14px;font-weight:800}
+.chart-legend{display:flex;gap:14px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-weight:600}
+.leg i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.leg .s{background:linear-gradient(180deg,#42a5f5,#1565c0)}
+.leg .e{background:linear-gradient(180deg,#ef5350,#c62828)}
+.leg .p{background:linear-gradient(180deg,#66bb6a,#2e7d32)}
+/* Vertical column chart */
+.vchart{display:flex;align-items:flex-end;gap:3px;height:150px;padding:4px 2px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.vchart::-webkit-scrollbar{height:4px}
+.vchart::-webkit-scrollbar-thumb{background:#c8e0c8;border-radius:4px}
+.vcol{flex:1 0 auto;min-width:28px;max-width:52px;display:flex;flex-direction:column;align-items:center;height:100%;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.vcol:active{opacity:.85}
+.vcol-bars{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:2px;width:100%;min-height:0}
+.vbar{width:9px;border-radius:4px 4px 2px 2px;min-height:2px;transition:height .3s ease}
+.vchart.monthly .vcol{min-width:40px;max-width:60px}
+.vchart.monthly .vbar{width:12px}
+.vbar.s{background:linear-gradient(180deg,#64b5f6,#1565c0)}
+.vbar.e{background:linear-gradient(180deg,#ef9a9a,#c62828)}
+.vbar.p{background:linear-gradient(180deg,#81c784,#2e7d32)}
+.vbar.neg{background:linear-gradient(180deg,#ef9a9a,#e53935)}
+.vcol-label{font-size:9px;font-weight:700;color:var(--muted);margin-top:5px;text-align:center;line-height:1.15;white-space:nowrap;height:28px;box-sizing:border-box}
+.vcol-label .day{display:block;font-size:11px;color:var(--text);font-weight:800}
+.vcol-amt{font-size:9px;font-weight:800;color:#1565c0;line-height:1;white-space:nowrap;height:12px;margin-top:2px}
+.vcol.today .vcol-label .day{color:var(--green2)}
+.vcol.today .vbar{box-shadow:0 0 0 1.5px rgba(46,125,50,.35)}
+.vcol.active{background:rgba(46,125,50,.08);border-radius:8px}
+.vchart-empty{height:80px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px}
+.vchart-tip{font-size:10px;color:var(--muted);text-align:center;margin-top:6px}
+
+/* Chart bottom sheet */
+.sheet-grab{width:40px;height:4px;border-radius:4px;background:#d5e3d5;margin:-6px auto 12px}
+.cs-head{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.cs-nav{width:36px;height:36px;border-radius:12px;background:#f1f7f1;border:none;color:var(--green);font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.cs-nav:active{background:#dfeedf}
+.cs-nav:disabled{opacity:.3;pointer-events:none}
+.cs-titlebox{flex:1;text-align:center;min-width:0}
+.cs-title{font-size:17px;font-weight:800;color:var(--green)}
+.cs-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.cs-hero{border-radius:18px;padding:16px;margin-bottom:10px;background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border:1px solid var(--border);text-align:center}
+.cs-hero .hl{font-size:11px;font-weight:700;color:var(--muted)}
+.cs-hero .hv{font-size:30px;font-weight:800;margin-top:2px;letter-spacing:-.5px}
+.cs-hero .hv.p{color:#2e7d32}.cs-hero .hv.neg{color:#e53935}
+.cs-hero .hs{font-size:11px;color:var(--muted);margin-top:2px;font-weight:600}
+.cs-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.cs-stat{border-radius:14px;padding:12px;border:1px solid var(--border);background:#fff}
+.cs-stat .sl{font-size:11px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:5px}
+.cs-stat .sl i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.cs-stat .sv{font-size:18px;font-weight:800;margin-top:4px}
+.cs-stat.s{background:#f3f8fe}.cs-stat.s i{background:#1565c0}.cs-stat.s .sv{color:#1565c0}
+.cs-stat.e{background:#fef4f4}.cs-stat.e i{background:#c62828}.cs-stat.e .sv{color:#c62828}
+.cs-sec{font-size:12px;font-weight:800;color:var(--green);margin:4px 0 8px;display:flex;justify-content:space-between}
+.cs-sec span{color:var(--muted);font-weight:600}
+.cs-cat{margin-bottom:9px}
+.cs-cat-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.cs-cat-top b{font-weight:700}
+.cs-cat-top em{font-style:normal;font-weight:800;color:#c62828}
+.cs-cat-bar{height:6px;border-radius:6px;background:#f0f4f0;overflow:hidden}
+.cs-cat-bar div{height:100%;border-radius:6px;background:linear-gradient(90deg,#ef9a9a,#e57373)}
+.cs-none{text-align:center;color:var(--muted);font-size:12px;padding:10px 0}
+
+/* chart axis + avg line */
+.vwrap{position:relative;display:flex;height:150px}
+.vaxis{position:relative;width:30px;flex-shrink:0;margin:4px 0 47px}
+.vaxis span{position:absolute;right:4px;font-size:9px;font-weight:700;color:var(--muted);transform:translateY(50%);line-height:1;white-space:nowrap}
+.vaxis span.avg{color:#2e7d32;background:#e8f5e9;border-radius:4px;padding:2px 3px;right:2px}
+.vgrid{position:absolute;left:30px;right:0;top:4px;bottom:47px;pointer-events:none}
+.vgrid i{position:absolute;left:0;right:0;height:0;border-top:1px solid #eef3ee}
+.vgrid i.avgline{border-top:1.5px dashed #43a047;z-index:2}
+.vwrap .vchart{flex:1;min-width:0;height:100%;position:relative;z-index:1}
+.vcol.closed{opacity:.55}
+.vcol.closed .vcol-bars{background:repeating-linear-gradient(135deg,#f3f6f3 0 4px,#fff 4px 8px);border-radius:6px}
+.vcol-amt.rest{color:var(--muted)}
+.leg .a{background:none;border-top:2px dashed #43a047;height:0;border-radius:0;width:14px}
+/* weekday card */
+.wd-grid{display:flex;gap:6px;align-items:flex-end;height:120px;margin-top:6px}
+.wd-col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;min-width:0}
+.wd-bars{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:3px;width:100%}
+.wd-bar{width:11px;border-radius:4px 4px 2px 2px;min-height:2px}
+.wd-bar.s{background:linear-gradient(180deg,#64b5f6,#1565c0)}
+.wd-bar.e{background:linear-gradient(180deg,#ef9a9a,#c62828)}
+.wd-col.best .wd-bar.s{background:linear-gradient(180deg,#81c784,#2e7d32)}
+.wd-col.closed .wd-bars{background:repeating-linear-gradient(135deg,#f3f6f3 0 4px,#fff 4px 8px);border-radius:8px;align-items:center;font-size:11px;color:var(--muted);font-weight:700}
+.wd-name{font-size:12px;font-weight:800;margin-top:6px;color:var(--text)}
+.wd-col.best .wd-name{color:var(--green2)}
+.wd-val{font-size:10px;font-weight:800;color:#1565c0;height:12px;line-height:12px}
+.wd-sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.wd-pill{border-radius:12px;padding:9px 10px;font-size:11px;color:var(--muted);font-weight:600}
+.wd-pill b{display:block;font-size:14px;margin-top:2px}
+.wd-pill.good{background:#edf7ee}.wd-pill.good b{color:#2e7d32}
+.wd-pill.slow{background:#fff6ec}.wd-pill.slow b{color:#e65100}
+.cs-rest{border-radius:18px;padding:16px;margin-bottom:10px;background:#f5f7f5;border:1px dashed #cfdccf;text-align:center;color:var(--muted);font-size:13px;font-weight:700}
+.help-box{background:#fff3e0;border:1px solid #ffe0b2;border-radius:14px;padding:14px;font-size:13px;line-height:1.55;color:#e65100;margin-bottom:4px}
+.help-box b{display:block;margin-bottom:6px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <div class="title">🌶️ ร้านส้มตำ</div>
+    <div class="sub"><span class="dot" id="statusDot"></span><span id="lastUpdated">กำลังโหลด...</span></div>
+  </div>
+  <div class="refresh-btn" id="refreshBtn" title="รีเฟรช">🔄</div>
+</div>
+<main id="main">
+  <div id="fileProtocolWarning" class="help-box" style="display:none">
+    <b>⚠️ เปิดจากไฟล์ในเครื่อง</b>
+    เบราว์เซอร์บล็อกการดึงข้อมูล Google Sheets เมื่อเปิดแบบไฟล์โดยตรง<br><br>
+    <b>วิธีแก้:</b> อัปโหลดไฟล์นี้ขึ้นเว็บ (เช่น GitHub Pages, Netlify Drop, หรือโฮสต์เอง) แล้วเปิดผ่านลิงก์ https
+  </div>
+  <div class="tabs" id="rangeTabs">
+    <div class="tab active" data-range="today">วันนี้</div>
+    <div class="tab" data-range="week">สัปดาห์</div>
+    <div class="tab" data-range="month">เดือนนี้</div>
+    <div class="tab" data-range="custom">กำหนดเอง</div>
+  </div>
+  <div class="card" id="customRangeCard" style="display:none">
+    <div class="range-row">
+      <input type="date" id="customFrom">
+      <input type="date" id="customTo">
+      <button id="customApply">ดู</button>
+    </div>
+  </div>
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="ค้นหา หมู, ไก่, ค่าพนักงาน...">
+    <span class="search-clear" id="searchClear" style="display:none">✕</span>
+  </div>
+  <div id="searchResults" style="display:none"></div>
+  <div id="errorBox"></div>
+  <div id="dashboardContent">
+    <div class="profit-hero">
+      <div class="label">💰 กำไรสุทธิช่วงนี้</div>
+      <div class="value pos" id="profitValue">-</div>
+      <div class="sub" id="profitSub">ยอดขาย − รายจ่าย</div>
+      <div class="profit-grid">
+        <div class="profit-mini"><div class="ml">ยอดขาย</div><div class="mv" id="salesKpi" style="color:var(--blue)">-</div></div>
+        <div class="profit-mini"><div class="ml">รายจ่าย</div><div class="mv" id="costKpi" style="color:var(--red)">-</div></div>
+        <div class="profit-mini"><div class="ml">% ต้นทุน</div><div class="mv" id="ratioKpi">-</div></div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="kpi-label">💸 รายจ่ายช่วงนี้</div><div class="kpi-value" id="rangeTotal">-</div><div class="kpi-sub" id="rangeSubLabel">รายจ่าย</div></div>
+      <div class="card"><div class="kpi-label">📅 ปีนี้</div><div class="kpi-value" id="yearTotal">-</div><div class="kpi-sub">รายจ่ายสะสม</div></div>
+      <div class="card"><div class="kpi-label">🧾 จำนวนบิล</div><div class="kpi-value" id="billCount">-</div><div class="kpi-sub" id="billCountSub">ช่วงนี้</div></div>
+      <div class="card"><div class="kpi-label">📊 เฉลี่ยต่อบิล</div><div class="kpi-value" id="avgBill">-</div><div class="kpi-sub" id="avgBillSub">ช่วงนี้</div></div>
+    </div>
+    <div class="card">
+      <div class="section"><span>📊 ยอดขาย · รายจ่าย · กำไร</span><button class="btn-add-sale" id="addSaleBtn">+ กรอกยอดขาย</button></div>
+      <div id="costRatioBody"></div>
+    </div>
+    <div class="card">
+      <div class="section">📈 กราฟรายวัน <span class="section-hint">แท่งแนวตั้ง · เลื่อนได้</span></div>
+      <div class="chart-legend">
+        <span class="leg"><i class="s"></i> ยอดขาย</span>
+        <span class="leg"><i class="e"></i> รายจ่าย</span>
+        <span class="leg"><i class="p"></i> กำไร</span>
+        <span class="leg"><i class="a"></i> ยอดขายเฉลี่ย</span>
+      </div>
+      <div id="dailyChart"></div>
+    </div>
+    <div class="card" id="weekdayCard">
+      <div class="section"><span>🗓️ ยอดขายแต่ละวันในสัปดาห์</span><span class="section-hint">เฉลี่ย 12 สัปดาห์ล่าสุด</span></div>
+      <div class="chart-legend">
+        <span class="leg"><i class="s"></i> ยอดขายเฉลี่ย</span>
+        <span class="leg"><i class="e"></i> รายจ่ายเฉลี่ย</span>
+      </div>
+      <div id="weekdayBody"></div>
+    </div>
+    <div class="card">
+      <div class="section">📈 เปรียบเทียบช่วงก่อนหน้า</div>
+      <div class="row"><span id="prevLabel">ช่วงก่อน</span><span id="prevTotal">-</span></div>
+      <div class="row"><span id="currentLabel">ช่วงนี้</span><span id="currentTotal">-</span></div>
+      <div class="big" id="momDiff">-</div>
+    </div>
+    <div class="card">
+      <div class="section">📆 ค่าเฉลี่ยต่อวัน</div>
+      <div style="text-align:center;color:var(--muted);font-size:13px">ผ่านไป <span id="daysNow">-</span> วัน</div>
+      <div class="big" id="avgDay">-</div>
+    </div>
+    <div class="card" id="budgetCard" style="display:none">
+      <div class="section">🎯 งบประมาณรายเดือน</div>
+      <div id="budgetList"></div>
+    </div>
+    <div class="card">
+      <div class="section">🥇 หมวดใช้เงินสูงสุด <span class="section-hint">แตะดูรายการ</span></div>
+      <div id="topCats"></div>
+    </div>
+    <div class="card">
+      <div class="section">📅 กราฟรายเดือน <span class="section-hint">ปีนี้</span></div>
+      <div class="chart-legend">
+        <span class="leg"><i class="s"></i> ยอดขาย</span>
+        <span class="leg"><i class="e"></i> รายจ่าย</span>
+        <span class="leg"><i class="p"></i> กำไร</span>
+        <span class="leg"><i class="a"></i> ยอดขายเฉลี่ย</span>
+      </div>
+      <div id="monthChart"></div>
+    </div>
+    <div>
+      <div class="section" style="margin-bottom:8px;padding:0 2px">📝 5 รายการล่าสุด</div>
+      <div class="table" id="recentTable"></div>
+    </div>
+  </div>
+</main>
+<div class="footer">🌶️ รีเฟรชอัตโนมัติทุก 5 นาที</div>
+<div class="overlay" id="drillOverlay">
+  <div class="sheet">
+    <div class="sheet-head"><div class="sheet-title" id="drillTitle">รายการ</div><div class="sheet-close" id="drillClose">ปิด ✕</div></div>
+    <div id="drillList"></div>
+  </div>
+</div>
+<div class="overlay" id="chartOverlay">
+  <div class="sheet">
+    <div class="sheet-grab"></div>
+    <div class="cs-head">
+      <button class="cs-nav" id="csPrev" aria-label="ก่อนหน้า">‹</button>
+      <div class="cs-titlebox"><div class="cs-title" id="csTitle"></div><div class="cs-sub" id="csSub"></div></div>
+      <button class="cs-nav" id="csNext" aria-label="ถัดไป">›</button>
+    </div>
+    <div id="csBody"></div>
+    <div class="sheet-close" id="csClose" style="text-align:center;margin-top:14px;padding:12px">ปิด ✕</div>
+  </div>
+</div>
+<div class="overlay" id="saleOverlay">
+  <div class="sheet">
+    <div class="sheet-head"><div class="sheet-title">💰 กรอกยอดขาย</div><div class="sheet-close" id="saleClose">ปิด ✕</div></div>
+    <div class="sale-field"><label>วันที่</label><input type="date" id="saleDateInput"></div>
+    <div class="sale-field"><label>ยอดขาย (บาท)</label><input type="number" id="saleAmountInput" placeholder="เช่น 12500" inputmode="decimal"></div>
+    <button class="sale-save-btn" id="saleSaveBtn">บันทึก</button>
+    <div class="sale-msg" id="saleMsg"></div>
+    <div id="recentSalesList"></div>
+  </div>
+</div>
+<script>
+const SHEET_ID='10D-GwPgOJ98JU-rTyzonTYsM8Gg6mTzluqy6Q5nJoCA';
+const SHEET_NAME='รวม';
+const BUDGET_SHEET_NAME='งบ';
+const SALES_API_URL='https://script.google.com/macros/s/AKfycbzmbwQKRFlIvtvFD1yyzDSxlAOnFOMBAp08pX9ZloXqauuUSSBI8Q5MSkvfmpMg9fBMPQ/exec';
+const SALES_CACHE_KEY='st_sales_v1';
+const thM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const thWeekday=['อา','จ','อ','พ','พฤ','ศ','ส'];
+let allData=[], budgetMap={}, salesData={}, currentRange='today', customFrom=null, customTo=null;
+
+const CLOSED_DOW=2; // ร้านหยุดทุกวันอังคาร
+function isClosedDay(d){ return d.getDay()===CLOSED_DOW; }
+function fmt(n){ return Math.round(n).toLocaleString('th-TH'); }
+function fmtShort(n){
+  const a=Math.abs(n);
+  if(a>=1000000) return (n/1000000).toFixed(1).replace(/\.0$/,'')+'M';
+  if(a>=1000) return (n/1000).toFixed(a>=10000?0:1).replace(/\.0$/,'')+'k';
+  return String(Math.round(n));
+}
+function pa(v){ const n=parseFloat(String(v||0).replace(/,/g,'')); return isNaN(n)?0:n; }
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function pd(v){
+  if(!v) return null;
+  const m=String(v).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return new Date(+m[3], +m[2]-1, +m[1]);
+  const d=new Date(v);
+  return isNaN(d)?null:d;
+}
+function dateKey(d){
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function saveSalesCache(d){ try{ localStorage.setItem(SALES_CACHE_KEY, JSON.stringify({d,ts:Date.now()})); }catch(e){} }
+function loadSalesCache(){ try{ const s=localStorage.getItem(SALES_CACHE_KEY); return s?JSON.parse(s).d:null; }catch(e){ return null; } }
+
+async function fetchSales(){
+  const res=await fetch(SALES_API_URL+'?action=get&_='+Date.now());
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const json=await res.json();
+  if(json.status!=='ok') throw new Error(json.message||'sales error');
+  const map={};
+  (json.rows||[]).forEach(r=>{ map[r.date]=Number(r.amount)||0; });
+  return map;
+}
+async function saveSale(dateStr, amount){
+  const url=SALES_API_URL+'?action=set&date='+encodeURIComponent(dateStr)+'&amount='+encodeURIComponent(amount);
+  const res=await fetch(url);
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const json=await res.json();
+  if(json.status!=='ok') throw new Error(json.message||'save error');
+  return json;
+}
+async function loadSales(){
+  const cached=loadSalesCache();
+  if(cached) salesData=cached;
+  try{
+    const fresh=await fetchSales();
+    salesData=fresh;
+    saveSalesCache(fresh);
+  }catch(e){ console.warn('sales cache', e.message); }
+}
+
+function sameDay(a,b){ return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+function startOfWeek(d){ const x=new Date(d); x.setDate(x.getDate()-x.getDay()); x.setHours(0,0,0,0); return x; }
+
+async function fetchSheet(sheetName){
+  const url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet='+encodeURIComponent(sheetName);
+  const res=await fetch(url);
+  if(!res.ok) throw new Error('โหลดไม่สำเร็จ (HTTP '+res.status+')');
+  const txt=await res.text();
+  const start=txt.indexOf('{');
+  const end=txt.lastIndexOf('}');
+  if(start===-1||end===-1) throw new Error('รูปแบบข้อมูลไม่ถูกต้อง');
+  const json=JSON.parse(txt.substring(start,end+1));
+  if(!json.table||!json.table.cols) throw new Error('ไม่พบข้อมูลในชีต "'+sheetName+'"');
+  const cols=json.table.cols.map(c=>c.label||'');
+  return (json.table.rows||[]).map(r=>{
+    const o={};
+    r.c.forEach((cell,i)=>{ o[cols[i]]=cell?(cell.f??cell.v):null; });
+    return o;
+  });
+}
+
+async function fetchData(){
+  const rows=await fetchSheet(SHEET_NAME);
+  allData=rows.map(r=>({
+    date:pd(r['วันที่']),
+    amt:pa(r['ยอดเงิน']),
+    cat:r['หมวดหมู่']||'อื่นๆ',
+    detail:esc(r['รายละเอียด']||r['ร้านค้า/ผู้รับเงิน']||'-')
+  })).filter(x=>x.amt>0 && x.date);
+  try{
+    const budgetRows=await fetchSheet(BUDGET_SHEET_NAME);
+    const map={};
+    budgetRows.forEach(r=>{
+      const cat=r['หมวดหมู่'], amt=pa(r['งบต่อเดือน']);
+      if(cat&&amt>0) map[cat]=amt;
+    });
+    budgetMap=map;
+  }catch(e){ budgetMap={}; }
+}
+
+function getRangeDates(){
+  const now=new Date();
+  if(currentRange==='today'){
+    const from=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    return {from,to:now,label:'วันนี้',prevLabel:'เมื่อวาน'};
+  }
+  if(currentRange==='week'){
+    return {from:startOfWeek(now),to:now,label:'สัปดาห์นี้',prevLabel:'สัปดาห์ก่อน'};
+  }
+  if(currentRange==='custom'&&customFrom&&customTo){
+    return {from:customFrom,to:customTo,label:'ช่วงที่เลือก',prevLabel:'ช่วงก่อนหน้า'};
+  }
+  const from=new Date(now.getFullYear(),now.getMonth(),1);
+  return {from,to:now,label:'เดือนนี้',prevLabel:'เดือนก่อน'};
+}
+function getPrevRangeDates(from,to){
+  if(currentRange==='month'){
+    const tm=from.getMonth(), ty=from.getFullYear();
+    const prevM=tm===0?11:tm-1, prevY=tm===0?ty-1:ty;
+    return {from:new Date(prevY,prevM,1), to:new Date(prevY,prevM+1,0,23,59,59)};
+  }
+  const ms=to.getTime()-from.getTime();
+  return {from:new Date(from.getTime()-ms-86400000), to:new Date(from.getTime()-86400000)};
+}
+function inRange(d,from,to){ return d>=from && d<=to; }
+
+function setStatus(ok){
+  const dot=document.getElementById('statusDot');
+  const label=document.getElementById('lastUpdated');
+  if(ok){
+    dot.className='dot';
+    const now=new Date();
+    label.textContent='อัปเดต '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  }else{
+    dot.className='dot stale';
+    label.textContent='โหลดไม่สำเร็จ';
+  }
+}
+function showSkeleton(){
+  if(allData.length) return; // มีข้อมูลอยู่แล้ว ไม่ต้องกะพริบ
+  document.querySelectorAll('.kpi-value,.big,.value').forEach(el=>{ el.classList.add('skel'); el.textContent='00000'; });
+}
+function clearSkeleton(){ document.querySelectorAll('.skel').forEach(el=>el.classList.remove('skel')); }
+
+function showError(message){
+  document.getElementById('errorBox').innerHTML=
+    '<div class="card state-box"><div class="icon">⚠️</div><div>'+message+'</div>'+
+    '<button class="retry-btn" id="retryBtn">ลองอีกครั้ง</button></div>';
+  document.getElementById('dashboardContent').style.display='none';
+  document.getElementById('retryBtn').onclick=load;
+}
+function clearError(){
+  document.getElementById('errorBox').innerHTML='';
+  const searching=document.getElementById('searchInput').value.trim().length>0;
+  document.getElementById('dashboardContent').style.display=searching?'none':'';
+}
+
+function renderBudget(mtdCats){
+  const card=document.getElementById('budgetCard');
+  const keys=Object.keys(budgetMap);
+  if(!keys.length){ card.style.display='none'; return; }
+  card.style.display='';
+  document.getElementById('budgetList').innerHTML=keys.map(cat=>{
+    const spent=mtdCats[cat]||0, budget=budgetMap[cat];
+    const pct=budget?(spent/budget*100):0;
+    let cls=pct>=100?'over':pct>=80?'warn':'';
+    return '<div class="budget-row"><div class="budget-top"><span class="budget-cat">'+esc(cat)+'</span>'+
+      '<span class="budget-amt">฿'+fmt(spent)+' / ฿'+fmt(budget)+'</span></div>'+
+      '<div class="budget-track"><div class="budget-fill '+cls+'" style="width:'+Math.min(pct,100)+'%"></div></div>'+
+      '<div class="budget-pct '+cls+'">'+pct.toFixed(0)+'% ของงบ'+(pct>=100?' — เกินงบ':pct>=80?' — ใกล้เต็ม':'')+'</div></div>';
+  }).join('');
+}
+
+function renderCostRatio(rData,from,to,label){
+  const costTotal=rData.reduce((s,x)=>s+x.amt,0);
+  const dayCount=Math.max(1, Math.round((to-from)/86400000)+1);
+  let salesTotal=0, daysWithSales=0, openDays=0;
+  for(let i=0;i<dayCount;i++){
+    const d=new Date(from); d.setDate(d.getDate()+i);
+    if(d>to) break;
+    const key=dateKey(d);
+    const has=salesData[key]!==undefined;
+    if(has){ salesTotal+=salesData[key]; daysWithSales++; }
+    if(!isClosedDay(d)||has) openDays++; // วันหยุดไม่นับ เว้นแต่มีการกรอกยอด
+  }
+  const hasAny=daysWithSales>0;
+  const profit=hasAny?salesTotal-costTotal:null;
+  const ratio=hasAny&&salesTotal>0?(costTotal/salesTotal*100):null;
+  const coverage=openDays>0?Math.min(100,Math.round(daysWithSales/openDays*100)):100;
+
+  const profitEl=document.getElementById('profitValue');
+  const profitSub=document.getElementById('profitSub');
+  if(hasAny){
+    profitEl.textContent=(profit>=0?'+':'')+'฿'+fmt(profit);
+    profitEl.className='value '+(profit>=0?'pos':'neg');
+    profitSub.textContent='ยอดขาย ฿'+fmt(salesTotal)+' − รายจ่าย ฿'+fmt(costTotal);
+  }else{
+    profitEl.textContent='ยังไม่มียอดขาย';
+    profitEl.className='value';
+    profitSub.textContent='กด "+ กรอกยอดขาย" เพื่อเริ่มคำนวณกำไร';
+  }
+  document.getElementById('salesKpi').textContent=hasAny?'฿'+fmt(salesTotal):'-';
+  document.getElementById('costKpi').textContent='฿'+fmt(costTotal);
+  document.getElementById('ratioKpi').textContent=ratio!==null?ratio.toFixed(1)+'%':'-';
+  document.getElementById('ratioKpi').style.color=ratio!==null?(ratio>=40?'var(--red)':ratio>=28?'var(--orange)':'var(--green2)'):'';
+
+  const body=document.getElementById('costRatioBody');
+  if(!hasAny){
+    body.innerHTML='<div class="ratio-empty">ยังไม่มีข้อมูลยอดขาย'+(label?'ใน'+label:'')+'<br>กดปุ่ม "+ กรอกยอดขาย" เพื่อเริ่มเทียบต้นทุนและกำไร</div>';
+    return;
+  }
+  body.innerHTML=
+    '<div class="summary-row"><span class="lbl">ยอดขาย</span><span class="val" style="color:var(--blue)">฿'+fmt(salesTotal)+'</span></div>'+
+    '<div class="summary-row"><span class="lbl">รายจ่าย (ต้นทุน)</span><span class="val" style="color:var(--red)">฿'+fmt(costTotal)+'</span></div>'+
+    '<div class="summary-row"><span class="lbl">กำไรสุทธิ</span><span class="val '+(profit>=0?'pos':'neg')+'">'+(profit>=0?'+':'')+'฿'+fmt(profit)+'</span></div>'+
+    '<div class="summary-row"><span class="lbl">สัดส่วนต้นทุน</span><span class="val" style="color:'+(ratio>=40?'var(--red)':ratio>=28?'var(--orange)':'var(--green2)')+'">'+ratio.toFixed(1)+'%</span></div>'+
+    (coverage<100?'<div class="ratio-hint">กรอกยอดขาย '+daysWithSales+'/'+openDays+' วัน ('+coverage+'%) — ตัวเลขอาจไม่ครบ<br><span style="opacity:.8">ไม่นับวันอังคารที่ร้านหยุด</span></div>':'');
+}
+
+function buildChart(colsHtml, cls, maxVal, avg){
+  const pct=v=>Math.min(100,Math.max(0,v/maxVal*100));
+  const ap=avg>0?pct(avg):null;
+  const ticks=[{v:maxVal,p:100},{v:maxVal/2,p:50},{v:0,p:0}];
+  const axis=ticks.filter(t=>ap===null||Math.abs(t.p-ap)>13).map(t=>'<span style="bottom:'+t.p+'%">'+(t.v?fmtShort(t.v):'0')+'</span>').join('')+
+    (ap!==null?'<span class="avg" style="bottom:'+ap+'%">'+fmtShort(avg)+'</span>':'');
+  const grid='<i style="bottom:0"></i><i style="bottom:50%"></i><i style="bottom:100%"></i>'+(ap!==null?'<i class="avgline" style="bottom:'+ap+'%"></i>':'');
+  return '<div class="vwrap"><div class="vaxis">'+axis+'</div><div class="vgrid">'+grid+'</div><div class="vchart'+(cls?' '+cls:'')+'">'+colsHtml+'</div></div>';
+}
+let csState={items:[],idx:0,box:null};
+function openChartSheet(box, items, idx){
+  csState={items,idx,box};
+  renderChartSheet();
+  document.getElementById('chartOverlay').classList.add('show');
+}
+function renderChartSheet(){
+  const {items,idx,box}=csState; const x=items[idx];
+  box.querySelectorAll('.vcol').forEach((c,i)=>c.classList.toggle('active',i===idx));
+  const act=box.querySelector('.vcol.active'); if(act&&act.scrollIntoView) act.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+  document.getElementById('csTitle').textContent=x.title;
+  document.getElementById('csSub').textContent=x.sub||'';
+  document.getElementById('csPrev').disabled=idx<=0;
+  document.getElementById('csNext').disabled=idx>=items.length-1;
+  const pCls=x.profit>=0?'p':'neg', sign=x.profit>=0?'+':'';
+  const ratio=x.sales>0?(x.expenses/x.sales*100):null;
+  const cats={};
+  x.rows.forEach(r=>{ cats[r.cat]=(cats[r.cat]||0)+r.amt; });
+  const list=Object.keys(cats).map(k=>({k,v:cats[k]})).sort((a,b)=>b.v-a.v);
+  const top=list.length?list[0].v:1;
+  const hero=(x.closed&&x.sales===0)?
+    '<div class="cs-rest">🌙 ร้านหยุดวัน'+x.sub.replace('วัน','')+'<br><span style="font-weight:600;font-size:12px">ไม่นับเป็นวันที่ขาดการกรอกยอด</span></div>':
+    '<div class="cs-hero"><div class="hl">กำไรสุทธิ</div><div class="hv '+pCls+'">'+sign+'฿'+fmt(x.profit)+'</div>'+
+      (ratio!==null?'<div class="hs">ต้นทุน '+ratio.toFixed(1)+'% ของยอดขาย</div>':'<div class="hs">ยังไม่มียอดขาย</div>')+'</div>';
+  document.getElementById('csBody').innerHTML=hero+
+    '<div class="cs-stats">'+
+      '<div class="cs-stat s"><div class="sl"><i></i>ยอดขาย</div><div class="sv">฿'+fmt(x.sales)+'</div></div>'+
+      '<div class="cs-stat e"><div class="sl"><i></i>รายจ่าย</div><div class="sv">฿'+fmt(x.expenses)+'</div></div>'+
+    '</div>'+
+    '<div class="cs-sec">รายจ่ายแยกหมวด<span>'+x.rows.length+' รายการ</span></div>'+
+    (list.length?list.slice(0,8).map(c=>
+      '<div class="cs-cat"><div class="cs-cat-top"><b>'+esc(c.k)+'</b><em>฿'+fmt(c.v)+'</em></div>'+
+      '<div class="cs-cat-bar"><div style="width:'+Math.max(4,Math.round(c.v/top*100))+'%"></div></div></div>'
+    ).join(''):'<div class="cs-none">ไม่มีรายจ่ายในช่วงนี้</div>');
+}
+function closeChartSheet(){
+  document.getElementById('chartOverlay').classList.remove('show');
+  document.querySelectorAll('.vcol.active').forEach(c=>c.classList.remove('active'));
+}
+
+function renderWeekdayCard(){
+  const body=document.getElementById('weekdayBody');
+  if(!body) return;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const agg={}; for(let i=0;i<7;i++) agg[i]={n:0,s:0,e:0};
+  for(let i=0;i<84;i++){
+    const d=new Date(today); d.setDate(d.getDate()-i);
+    const v=salesData[dateKey(d)];
+    if(v===undefined||v<=0) continue;
+    const a=agg[d.getDay()];
+    a.n++; a.s+=v;
+    a.e+=allData.filter(x=>sameDay(x.date,d)).reduce((t,x)=>t+x.amt,0);
+  }
+  const order=[1,2,3,4,5,6,0];
+  const names=['อา','จ','อ','พ','พฤ','ศ','ส'];
+  const full=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+  const rows=order.map(dw=>{
+    const a=agg[dw];
+    return {dw,n:a.n,s:a.n?a.s/a.n:0,e:a.n?a.e/a.n:0,closed:dw===CLOSED_DOW&&a.n===0};
+  });
+  const open=rows.filter(r=>r.n>0);
+  if(!open.length){
+    body.innerHTML='<div class="vchart-empty">ยังไม่มียอดขายพอให้สรุป</div>';
+    return;
+  }
+  const maxV=Math.max(1,...open.map(r=>Math.max(r.s,r.e)));
+  const best=open.reduce((a,b)=>b.s>a.s?b:a);
+  const slow=open.length>1?open.reduce((a,b)=>b.s<a.s?b:a):null;
+  const cols=rows.map(r=>{
+    if(r.closed) return '<div class="wd-col closed"><div class="wd-bars">หยุด</div><div class="wd-name">'+names[r.dw]+'</div><div class="wd-val"></div></div>';
+    const sH=r.n?Math.max(3,Math.round(r.s/maxV*100)):0;
+    const eH=r.n?Math.max(3,Math.round(r.e/maxV*100)):0;
+    return '<div class="wd-col'+(r===best?' best':'')+'"><div class="wd-bars"><div class="wd-bar s" style="height:'+sH+'%"></div><div class="wd-bar e" style="height:'+eH+'%"></div></div>'+
+      '<div class="wd-name">'+names[r.dw]+'</div><div class="wd-val">'+(r.n?'฿'+fmtShort(r.s):'-')+'</div></div>';
+  }).join('');
+  body.innerHTML='<div class="wd-grid">'+cols+'</div>'+
+    '<div class="wd-sum">'+
+      '<div class="wd-pill good">🏆 ขายดีสุด<b>วัน'+full[best.dw]+' ฿'+fmt(best.s)+'</b></div>'+
+      (slow&&slow!==best?'<div class="wd-pill slow">🍃 เงียบสุด<b>วัน'+full[slow.dw]+' ฿'+fmt(slow.s)+'</b></div>':'<div></div>')+
+    '</div>'+
+    '<div class="vchart-tip">คิดจากวันที่กรอกยอดขายแล้วเท่านั้น · วันอังคารร้านหยุดไม่นับ</div>';
+}
+
+function renderDailyChart(from,to){
+  const dayCount=Math.max(1, Math.round((to-from)/86400000)+1);
+  const days=[]; let maxVal=1;
+  for(let i=0;i<dayCount;i++){
+    const d=new Date(from); d.setDate(d.getDate()+i);
+    if(d>to) break;
+    const key=dateKey(d);
+    const sales=salesData[key]||0;
+    const expenses=allData.filter(x=>sameDay(x.date,d)).reduce((s,x)=>s+x.amt,0);
+    const profit=sales-expenses;
+    days.push({d,sales,expenses,profit,closed:isClosedDay(d),rows:allData.filter(x=>sameDay(x.date,d))});
+    maxVal=Math.max(maxVal,sales,expenses,Math.abs(profit));
+  }
+  const box=document.getElementById('dailyChart');
+  if(!days.length){
+    box.innerHTML='<div class="vchart-empty">ไม่มีข้อมูลในช่วงนี้</div>';
+    return;
+  }
+  const html=days.map((x,idx)=>{
+    const sH=Math.max(2,Math.round(x.sales/maxVal*100));
+    const eH=Math.max(2,Math.round(x.expenses/maxVal*100));
+    const pH=Math.max(2,Math.round(Math.abs(x.profit)/maxVal*100));
+    const pCls=x.profit>=0?'p':'neg';
+    const isToday=sameDay(x.d,new Date());
+    const showAmt=x.sales>0?x.sales:(x.expenses>0?x.expenses:0);
+    const rest=x.closed&&x.sales===0&&x.expenses===0;
+    return '<div class="vcol'+(isToday?' today':'')+(rest?' closed':'')+'" data-idx="'+idx+'">'+
+      '<div class="vcol-bars">'+
+        '<div class="vbar s" style="height:'+sH+'%"></div>'+
+        '<div class="vbar e" style="height:'+eH+'%"></div>'+
+        '<div class="vbar '+pCls+'" style="height:'+pH+'%"></div>'+
+      '</div>'+
+      '<div class="vcol-label"><span class="day">'+x.d.getDate()+'</span>'+thWeekday[x.d.getDay()]+'</div>'+
+      (rest?'<div class="vcol-amt rest">หยุด</div>':(showAmt?'<div class="vcol-amt">฿'+fmtShort(showAmt)+'</div>':'<div class="vcol-amt"></div>'))+
+    '</div>';
+  }).join('');
+  const salesDays=days.filter(x=>x.sales>0);
+  const avgSales=salesDays.length?salesDays.reduce((a,x)=>a+x.sales,0)/salesDays.length:0;
+  box.innerHTML=buildChart(html,'',maxVal,avgSales)+
+    (days.length>10?'<div class="vchart-tip">แตะแท่งเพื่อดูยอด · เลื่อนเพื่อดูวันอื่น</div>':'<div class="vchart-tip">แตะแท่งเพื่อดูยอดเต็ม</div>');
+
+  const items=days.map(x=>({
+    title:x.d.getDate()+' '+thM[x.d.getMonth()]+(sameDay(x.d,new Date())?' (วันนี้)':''),
+    sub:'วัน'+['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'][x.d.getDay()],
+    sales:x.sales,expenses:x.expenses,profit:x.profit,closed:x.closed,rows:x.rows}));
+  box.querySelectorAll('.vcol').forEach(el=>{
+    el.onclick=()=>openChartSheet(box,items,+el.dataset.idx);
+  });
+}
+
+function renderMonthlyChart(yData){
+  const now=new Date(), year=now.getFullYear();
+  const months=[]; let maxVal=1;
+  for(let m=0;m<12;m++){
+    const expenses=yData.filter(x=>x.date.getMonth()===m).reduce((s,x)=>s+x.amt,0);
+    let sales=0;
+    Object.keys(salesData).forEach(key=>{
+      const d=new Date(key+'T00:00:00');
+      if(d.getFullYear()===year && d.getMonth()===m) sales+=salesData[key]||0;
+    });
+    const profit=sales-expenses;
+    if(sales>0||expenses>0){
+      months.push({m,sales,expenses,profit,rows:yData.filter(x=>x.date.getMonth()===m)});
+      maxVal=Math.max(maxVal,sales,expenses,Math.abs(profit));
+    }
+  }
+  const box=document.getElementById('monthChart');
+  if(!months.length){
+    box.innerHTML='<div class="vchart-empty">ยังไม่มีข้อมูลปีนี้</div>';
+    return;
+  }
+  const currentM=now.getMonth();
+  const html=months.map((x,idx)=>{
+    const sH=Math.max(2,Math.round(x.sales/maxVal*100));
+    const eH=Math.max(2,Math.round(x.expenses/maxVal*100));
+    const pH=Math.max(2,Math.round(Math.abs(x.profit)/maxVal*100));
+    const pCls=x.profit>=0?'p':'neg';
+    const isCurrent=x.m===currentM;
+    const showAmt=x.sales>0?x.sales:(x.expenses>0?x.expenses:0);
+    return '<div class="vcol'+(isCurrent?' today':'')+'" data-idx="'+idx+'">'+
+      '<div class="vcol-bars">'+
+        '<div class="vbar s" style="height:'+sH+'%"></div>'+
+        '<div class="vbar e" style="height:'+eH+'%"></div>'+
+        '<div class="vbar '+pCls+'" style="height:'+pH+'%"></div>'+
+      '</div>'+
+      '<div class="vcol-label"><span class="day">'+thM[x.m]+'</span>'+(isCurrent?'นี้':'')+'</div>'+
+      (showAmt?'<div class="vcol-amt">฿'+fmtShort(showAmt)+'</div>':'<div class="vcol-amt"></div>')+
+    '</div>';
+  }).join('');
+  const sm=months.filter(x=>x.sales>0);
+  const avgM=sm.length?sm.reduce((a,x)=>a+x.sales,0)/sm.length:0;
+  box.innerHTML=buildChart(html,'monthly',maxVal,avgM)+
+    '<div class="vchart-tip">แตะแท่งเพื่อดูยอดเต็ม</div>';
+
+  const items=months.map(x=>({
+    title:thM[x.m]+' '+year+(x.m===currentM?' (เดือนนี้)':''),
+    sub:'สรุปทั้งเดือน',
+    sales:x.sales,expenses:x.expenses,profit:x.profit,rows:x.rows}));
+  box.querySelectorAll('.vcol').forEach(el=>{
+    el.onclick=()=>openChartSheet(box,items,+el.dataset.idx);
+  });
+}
+
+function openDrill(cat,rows){
+  document.getElementById('drillTitle').textContent=cat+' ('+rows.length+' รายการ)';
+  document.getElementById('drillList').innerHTML=rows.length?
+    [...rows].sort((a,b)=>b.date-a.date).map(x=>
+      '<div class="item"><div class="date">'+x.date.getDate()+' '+thM[x.date.getMonth()]+'</div>'+
+      '<div class="detail">'+x.detail+'</div><div class="price">฿'+fmt(x.amt)+'</div></div>'
+    ).join('') : '<div class="empty-small">ไม่มีรายการ</div>';
+  document.getElementById('drillOverlay').classList.add('show');
+}
+function closeDrill(){ document.getElementById('drillOverlay').classList.remove('show'); }
+
+function runSearch(query){
+  const q=query.trim().toLowerCase();
+  const resultsBox=document.getElementById('searchResults');
+  const clearBtn=document.getElementById('searchClear');
+  if(!q){
+    resultsBox.style.display='none'; clearBtn.style.display='none';
+    document.getElementById('dashboardContent').style.display='';
+    return;
+  }
+  clearBtn.style.display='';
+  const matches=allData.filter(x=>x.cat.toLowerCase().includes(q)||String(x.detail).toLowerCase().includes(q));
+  const total=matches.reduce((s,x)=>s+x.amt,0);
+  const sorted=[...matches].sort((a,b)=>b.date-a.date);
+  resultsBox.innerHTML='<div class="card"><div class="search-summary"><div class="search-summary-text">พบ '+matches.length+' รายการ ที่ตรงกับ "'+esc(query.trim())+'"</div>'+
+    '<div class="search-summary-total">฿'+fmt(total)+'</div></div>'+
+    (matches.length?'<div class="table" style="border:1px solid var(--border)">'+sorted.map(x=>
+      '<div class="item"><div class="date">'+x.date.getDate()+' '+thM[x.date.getMonth()]+'</div>'+
+      '<div class="detail">'+x.detail+'<br><span style="color:var(--muted);font-size:11px">'+esc(x.cat)+'</span></div>'+
+      '<div class="price">฿'+fmt(x.amt)+'</div></div>'
+    ).join('')+'</div>':'<div class="empty-small">ไม่พบรายการ</div>')+'</div>';
+  resultsBox.style.display='';
+  document.getElementById('dashboardContent').style.display='none';
+  document.getElementById('errorBox').innerHTML='';
+}
+
+function render(){
+  clearSkeleton();
+  const {from,to,label,prevLabel}=getRangeDates();
+  const rData=allData.filter(x=>inRange(x.date,from,to));
+  const now=new Date();
+  const yData=allData.filter(x=>x.date.getFullYear()===now.getFullYear());
+  const {from:pFrom,to:pTo}=getPrevRangeDates(from,to);
+  const prevData=allData.filter(x=>inRange(x.date,pFrom,pTo));
+
+  const totalRange=rData.reduce((s,x)=>s+x.amt,0);
+  const totalYear=yData.reduce((s,x)=>s+x.amt,0);
+  const totalPrev=prevData.reduce((s,x)=>s+x.amt,0);
+  const avgBill=rData.length?totalRange/rData.length:0;
+  const dayCount=Math.max(1, Math.round((to-from)/86400000)+1);
+
+  document.getElementById('rangeTotal').innerHTML='฿'+fmt(totalRange);
+  document.getElementById('rangeSubLabel').textContent='รายจ่าย'+label;
+  document.getElementById('yearTotal').innerHTML='฿'+fmt(totalYear);
+  document.getElementById('billCount').innerHTML=fmt(rData.length);
+  document.getElementById('billCountSub').textContent=label;
+  document.getElementById('avgBill').innerHTML='฿'+fmt(avgBill);
+  document.getElementById('avgBillSub').textContent=label;
+  document.getElementById('prevLabel').textContent=prevLabel;
+  document.getElementById('currentLabel').textContent=label;
+  document.getElementById('prevTotal').innerHTML='฿'+fmt(totalPrev);
+  document.getElementById('currentTotal').innerHTML='฿'+fmt(totalRange);
+
+  let diff=0;
+  if(totalPrev) diff=((totalRange-totalPrev)/totalPrev)*100;
+  document.getElementById('momDiff').innerHTML=totalPrev?((diff>=0?'▲ ':'▼ ')+Math.abs(diff).toFixed(1)+'%'):'ไม่มีข้อมูลเทียบ';
+  document.getElementById('momDiff').className=diff>=0?'big up':'big down';
+  document.getElementById('daysNow').innerHTML=dayCount;
+  let openCnt=0;
+  for(let i=0;i<dayCount;i++){ const d=new Date(from); d.setDate(d.getDate()+i); if(d>to) break; if(!isClosedDay(d)) openCnt++; }
+  document.getElementById('avgDay').innerHTML='฿'+fmt(totalRange/Math.max(1,openCnt));
+
+  renderCostRatio(rData,from,to,label);
+  renderDailyChart(from,to);
+  renderWeekdayCard();
+
+  const cats={}, prevCats={};
+  rData.forEach(x=>{ cats[x.cat]=(cats[x.cat]||0)+x.amt; });
+  prevData.forEach(x=>{ prevCats[x.cat]=(prevCats[x.cat]||0)+x.amt; });
+  const topCats=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('topCats').innerHTML=topCats.length?topCats.map((x,i)=>{
+    const prevAmt=prevCats[x[0]]||0;
+    let deltaHtml='';
+    if(prevAmt>0){
+      const d=((x[1]-prevAmt)/prevAmt)*100;
+      deltaHtml='<span class="cat-delta '+(d>=0?'up':'down')+'">'+(d>=0?'▲':'▼')+Math.abs(d).toFixed(0)+'%</span>';
+    }else deltaHtml='<span class="cat-delta up">ใหม่</span>';
+    return '<div class="list-row" data-cat="'+esc(x[0])+'"><div class="name">'+['🥇','🥈','🥉','4️⃣','5️⃣'][i]+' '+esc(x[0])+' '+deltaHtml+'</div><div class="amount">฿'+fmt(x[1])+'</div></div>';
+  }).join('') : '<div class="empty-small">ไม่มีรายจ่ายในช่วงนี้</div>';
+
+  document.querySelectorAll('#topCats .list-row').forEach(el=>{
+    el.onclick=()=>{ openDrill(el.getAttribute('data-cat'), rData.filter(x=>x.cat===el.getAttribute('data-cat'))); };
+  });
+
+  renderMonthlyChart(yData);
+
+  const recent=[...allData].sort((a,b)=>b.date-a.date).slice(0,5);
+  document.getElementById('recentTable').innerHTML=recent.length?recent.map(x=>
+    '<div class="item"><div class="date">'+x.date.getDate()+' '+thM[x.date.getMonth()]+'</div>'+
+    '<div class="detail">'+x.detail+'</div><div class="price">฿'+fmt(x.amt)+'</div></div>'
+  ).join('') : '<div class="empty-small">ยังไม่มีรายการ</div>';
+
+  const monthFrom=new Date(now.getFullYear(),now.getMonth(),1);
+  const mtdCats={};
+  allData.filter(x=>inRange(x.date,monthFrom,now)).forEach(x=>{ mtdCats[x.cat]=(mtdCats[x.cat]||0)+x.amt; });
+  renderBudget(mtdCats);
+}
+
+async function load(){
+  clearError();
+  showSkeleton();
+  document.getElementById('refreshBtn').classList.add('spinning');
+  try{
+    await Promise.all([fetchData(),loadSales()]);
+    setStatus(true);
+    render();
+    const sv=document.getElementById('searchInput').value;
+    if(sv.trim()) runSearch(sv);
+  }catch(e){
+    setStatus(false);
+    let msg='ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+    if(location.protocol==='file:'){
+      msg='เปิดจากไฟล์ในเครื่อง — เบราว์เซอร์บล็อกการดึงข้อมูล<br><br>กรุณาอัปโหลดไฟล์นี้ขึ้นเว็บ (GitHub Pages / Netlify) แล้วเปิดผ่านลิงก์ https';
+    }else if(e.message&&e.message.includes('ชีต')) msg=e.message;
+    showError(msg);
+  }finally{
+    document.getElementById('refreshBtn').classList.remove('spinning');
+  }
+}
+
+function recentSalesHTML(){
+  const now=new Date(), rows=[];
+  for(let back=0;back<7;back++){
+    const d=new Date(now); d.setDate(d.getDate()-back);
+    const key=dateKey(d);
+    if(salesData[key]!==undefined){
+      rows.push('<div class="recent-sales-row"><span>'+d.getDate()+' '+thM[d.getMonth()]+(back===0?' (วันนี้)':'')+'</span><span>฿'+fmt(salesData[key])+'</span></div>');
+    }
+  }
+  return rows.length?'<div class="recent-sales-list">'+rows.join('')+'</div>':'';
+}
+function openSaleModal(){
+  const todayKey=dateKey(new Date());
+  document.getElementById('saleDateInput').value=todayKey;
+  document.getElementById('saleDateInput').max=todayKey;
+  document.getElementById('saleAmountInput').value=salesData[todayKey]!==undefined?salesData[todayKey]:'';
+  document.getElementById('saleMsg').textContent='';
+  document.getElementById('saleMsg').className='sale-msg';
+  document.getElementById('recentSalesList').innerHTML=recentSalesHTML();
+  document.getElementById('saleOverlay').classList.add('show');
+  setTimeout(()=>document.getElementById('saleAmountInput').focus(),150);
+}
+function closeSaleModal(){ document.getElementById('saleOverlay').classList.remove('show'); }
+
+async function submitSale(){
+  const dStr=document.getElementById('saleDateInput').value;
+  const amt=parseFloat(document.getElementById('saleAmountInput').value);
+  const msg=document.getElementById('saleMsg');
+  const btn=document.getElementById('saleSaveBtn');
+  if(!dStr){ msg.textContent='กรุณาเลือกวันที่'; msg.className='sale-msg err'; return; }
+  if(isNaN(amt)||amt<0){ msg.textContent='กรุณากรอกยอดขายให้ถูกต้อง'; msg.className='sale-msg err'; return; }
+  btn.disabled=true; btn.textContent='กำลังบันทึก...'; msg.textContent=''; msg.className='sale-msg';
+  try{
+    await saveSale(dStr,amt);
+    salesData[dStr]=amt; saveSalesCache(salesData);
+    msg.textContent='✓ บันทึกสำเร็จ'; msg.className='sale-msg ok';
+    render();
+    setTimeout(closeSaleModal,700);
+  }catch(e){
+    msg.textContent='✗ บันทึกไม่สำเร็จ: '+e.message; msg.className='sale-msg err';
+  }finally{
+    btn.disabled=false; btn.textContent='บันทึก';
+  }
+}
+
+// Detect file protocol
+if(location.protocol==='file:'){
+  document.getElementById('fileProtocolWarning').style.display='block';
+}
+
+document.querySelectorAll('#rangeTabs .tab').forEach(tab=>{
+  tab.onclick=()=>{
+    document.querySelectorAll('#rangeTabs .tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    currentRange=tab.getAttribute('data-range');
+    document.getElementById('customRangeCard').style.display=currentRange==='custom'?'':'none';
+    if(currentRange!=='custom'||(customFrom&&customTo)) render();
+  };
+});
+document.getElementById('customApply').onclick=()=>{
+  const fv=document.getElementById('customFrom').value, tv=document.getElementById('customTo').value;
+  if(!fv||!tv) return;
+  customFrom=new Date(fv+'T00:00:00');
+  customTo=new Date(tv+'T23:59:59');
+  render();
+};
+document.getElementById('refreshBtn').onclick=load;
+document.getElementById('drillClose').onclick=closeDrill;
+document.getElementById('csClose').onclick=closeChartSheet;
+document.getElementById('chartOverlay').onclick=e=>{ if(e.target.id==='chartOverlay') closeChartSheet(); };
+document.getElementById('csPrev').onclick=()=>{ if(csState.idx>0){ csState.idx--; renderChartSheet(); } };
+document.getElementById('csNext').onclick=()=>{ if(csState.idx<csState.items.length-1){ csState.idx++; renderChartSheet(); } };
+document.getElementById('drillOverlay').onclick=e=>{ if(e.target.id==='drillOverlay') closeDrill(); };
+document.getElementById('addSaleBtn').onclick=openSaleModal;
+document.getElementById('saleClose').onclick=closeSaleModal;
+document.getElementById('saleSaveBtn').onclick=submitSale;
+document.getElementById('saleOverlay').onclick=e=>{ if(e.target.id==='saleOverlay') closeSaleModal(); };
+document.getElementById('searchInput').oninput=e=>runSearch(e.target.value);
+document.getElementById('searchClear').onclick=()=>{
+  document.getElementById('searchInput').value='';
+  runSearch('');
+  document.getElementById('searchInput').focus();
+};
+
+load();
+setInterval(load, 300000);
+</script>
+</body>
+</html>
